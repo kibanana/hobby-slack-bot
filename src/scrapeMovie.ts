@@ -1,6 +1,7 @@
 import { fetch } from 'cheerio-httpcli';
+import * as os from 'os';
 
-const scrapeMovieText = async (): Promise<object[]> => {
+const scrapeMovieText = async (): Promise<string> => {
 
   let result: object[] = [];
 
@@ -54,9 +55,26 @@ const scrapeMovieText = async (): Promise<object[]> => {
       });
     }); // then
     if (result.length === 7) {
-      return result;
+      let finalStr: string = '';
+      result.forEach((obj: any, idx: number) => { // title, ticketRate, genre, director, actors
+        switch(idx + 1) {
+          case 1: finalStr += `1️⃣`; break;
+          case 2: finalStr += `2️⃣`; break;
+          case 3: finalStr += `3️⃣`; break;
+          case 4: finalStr += `4️⃣`; break;
+          case 5: finalStr += `5️⃣`; break;
+          case 6: finalStr += `6️⃣`; break;
+          case 7: finalStr += `7️⃣`; break;
+        }
+        finalStr += ` ${obj['title']} ${os.EOL}`;
+        finalStr += `📊 예매율 ${obj['ticketRate']}%${os.EOL}`;
+        finalStr += `✨ 장르 ${os.EOL}${obj['genre']}${os.EOL}`;
+        finalStr += `🤷‍♀감독🤷‍♂ ${os.EOL}${obj['director']}${os.EOL}`;
+        finalStr += `🙆‍♂ 배우 🙆 ${os.EOL}${obj['actors']}${os.EOL}`;
+      });
+      return finalStr;
     } else {
-      return [{}];
+      return '';
     }
 };
 
