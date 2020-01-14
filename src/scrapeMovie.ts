@@ -1,11 +1,12 @@
 import { fetch } from 'cheerio-httpcli';
-import * as os from 'os';
 
 const scrapeMovieText = async (): Promise<string> => {
 
   let result: object[] = [];
 
-  await fetch('https://movie.naver.com/movie/running/current.nhn')
+  const MOVIE_URL = 'https://movie.naver.com';
+
+  await fetch(MOVIE_URL+'/movie/running/current.nhn')
     .then((res) => {
       let movieTitle: string;
       
@@ -15,7 +16,7 @@ const scrapeMovieText = async (): Promise<string> => {
       
       const $ = res.$;
 
-      $('dl.lst_dsc').each((i, elem) => {
+      $('div.lst_wrap ul li').each((i, elem) => {
         // always reult.length === 7
         if (i >= 7) {
           return true;
@@ -43,6 +44,8 @@ const scrapeMovieText = async (): Promise<string> => {
 
             result.push({
               title: movieTitle,
+              link: `${MOVIE_URL}${$(elem).find('div.thumb a').attr('href')}`,
+              poster: $(elem).find('div.thumb a img').attr('src'),
               ticketRate: $(elem).find('dd.star dl.info_exp dd div span.num').text(),
               genre: movieGenre,
               director: movieDirector,
@@ -66,11 +69,15 @@ const scrapeMovieText = async (): Promise<string> => {
           case 6: finalStr += `6️⃣`; break;
           case 7: finalStr += `7️⃣`; break;
         }
-        finalStr += ` ${obj['title']} ${os.EOL}`;
-        finalStr += `📊 예매율 ${obj['ticketRate']}%${os.EOL}`;
-        finalStr += `✨ 장르 ${os.EOL}${obj['genre']}${os.EOL}`;
-        finalStr += `🤷‍♀감독🤷‍♂ ${os.EOL}${obj['director']}${os.EOL}`;
-        finalStr += `🙆‍♂ 배우 🙆 ${os.EOL}${obj['actors']}${os.EOL}`;
+        finalStr += ` ${obj['title']}` + "\n";
+        finalStr += `📊 예매율 ${obj['ticketRate']}%` + "\n";
+        if (obj['genre'].length) {
+          finalStr += `✨ 장르`+ "\n" + `${obj['genre']}` + "\n";
+        }
+        finalStr += `🤷‍♀감독🤷‍♂` + "\n" + `${obj['director']}` + "\n";
+        if (obj['actors']) {
+          finalStr += `🙆‍♂ 배우 🙆`+ "\n" + `${obj['actors']}` + "\n";
+        }
       });
       return finalStr;
     } else {
