@@ -18,6 +18,7 @@
   "homepage": "https://github.com/kyw017763/hobby-info-slack-bot#readme",
   "dependencies": {
     "@slack/rtm-api": "^5.0.3",
+    "@types/puppeteer": "^2.0.0",
     "cheerio-httpcli": "^0.7.4",
     "puppeteer": "^2.0.0"
   },
