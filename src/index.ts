@@ -16,8 +16,7 @@ rtm.on('message', async (event) => {
   try {
     await rtm.sendMessage(`Hello <@${event.user}>!`, event.channel);
     if (text.includes('!영화')) {
-      const movieResult = scrapeMovieText();
-      movieResult.then(async (movieInfo) => {
+      scrapeMovieText().then(async (movieInfo) => {
         const tempMovieInfo = movieInfo.split(os.EOL);
         if (movieInfo) {
           for (const str of tempMovieInfo.slice(0, tempMovieInfo.length -1)) {

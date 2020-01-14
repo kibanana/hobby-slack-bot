@@ -5,7 +5,9 @@ const scrapeMovieText = async (): Promise<string> => {
 
   let result: object[] = [];
 
-  await fetch('https://movie.naver.com/movie/running/current.nhn')
+  const MOVIE_URL = 'https://movie.naver.com';
+
+  await fetch(MOVIE_URL+'/movie/running/current.nhn')
     .then((res) => {
       let movieTitle: string;
       
@@ -15,7 +17,7 @@ const scrapeMovieText = async (): Promise<string> => {
       
       const $ = res.$;
 
-      $('dl.lst_dsc').each((i, elem) => {
+      $('div.lst_wrap ul li').each((i, elem) => {
         // always reult.length === 7
         if (i >= 7) {
           return true;
@@ -43,6 +45,8 @@ const scrapeMovieText = async (): Promise<string> => {
 
             result.push({
               title: movieTitle,
+              link: `${MOVIE_URL}${$(elem).find('div.thumb a').attr('href')}`,
+              poster: $(elem).find('div.thumb a img').attr('src'),
               ticketRate: $(elem).find('dd.star dl.info_exp dd div span.num').text(),
               genre: movieGenre,
               director: movieDirector,
@@ -55,6 +59,7 @@ const scrapeMovieText = async (): Promise<string> => {
       });
     }); // then
     if (result.length === 7) {
+      console.log(result);
       let finalStr: string = '';
       result.forEach((obj: any, idx: number) => { // title, ticketRate, genre, director, actors
         switch(idx + 1) {
