@@ -1,5 +1,18 @@
 import { fetch } from 'cheerio-httpcli';
 import * as puppeteer from 'puppeteer';
+import * as AWS from 'aws-sdk';
+import config from './config';
+
+const s3 = new AWS.S3();
+
+// Amazon Cognito 인증 공급자를 초기화합니다
+AWS.config.region = config.AWS_REGION; // 리전
+AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+    IdentityPoolId: config.AWS_IDENTITY,
+});
+
+const bucket = "hobby-info-image";
+const key = `hobby-info-image-${Date.now().toString()}.png`;
 
 const scrapeMovieText = async (): Promise<string> => {
 
@@ -100,8 +113,9 @@ const scrapeMovieImage = async () => {
   const mainResult = await main!.boundingBox();
 
   if (mainResult) {
-    await page.screenshot({
-      path: 'naverMovie.png',
+    const screenshot = await page.screenshot({
+      // path: 'naverMovie.png',
+      type: 'png',
       clip: {
         x: mainResult.x,
         y: mainResult.y,
@@ -109,6 +123,9 @@ const scrapeMovieImage = async () => {
         height: Math.min(mainResult.height, page.viewport().height),
       }, 
     });
+    const s3Params = { Bucket: bucket, Key: key, Body: screenshot };
+    await s3.putObject(s3Params).promise();
+    return '';
   } else {
     result = false;
   }
