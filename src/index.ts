@@ -19,8 +19,10 @@ rtm.on('message', async (event) => {
       if (imageWordArr.includes(text.split('!영화')[1].trim())) {
         await scrapeMovieImage().then(async (result) => {
           if (result) {
-            console.log('Success');
-            // stuff
+            await rtm.send('image', {
+              'image_url': result,
+              'alt_text': 'hobby-info-image',
+            });
           } else {
             await rtm.sendMessage(`An error occurred during getting movie image!`, event.channel);
           }
