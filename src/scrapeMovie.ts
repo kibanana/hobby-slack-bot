@@ -58,6 +58,8 @@ const scrapeMovieText = async (): Promise<string> => {
 
             result.push({
               title: movieTitle,
+              rating: $(elem).find('span.num:nth-of-type(2)').text(),
+              ratingPerson: $(elem).find('span.num2').text(),
               link: `${MOVIE_URL}${$(elem).find('div.thumb a').attr('href')}`,
               poster: $(elem).find('div.thumb a img').attr('src'),
               ticketRate: $(elem).find('dd.star dl.info_exp dd div span.num').text(),
@@ -83,7 +85,7 @@ const scrapeMovieText = async (): Promise<string> => {
           case 6: finalStr += `6️⃣`; break;
           case 7: finalStr += `7️⃣`; break;
         }
-        finalStr += ` ${obj['title']}` + "\n";
+        finalStr += ` <${obj['link']}|${obj['title']}> ⭐️${obj['rating']}(${obj['ratingPerson']})` + "\n";
         finalStr += `📊 예매율 ${obj['ticketRate']}%` + "\n";
         if (obj['genre'].length) {
           finalStr += `✨ 장르`+ "\n" + `${obj['genre']}` + "\n";
@@ -92,6 +94,7 @@ const scrapeMovieText = async (): Promise<string> => {
         if (obj['actors']) {
           finalStr += `🙆‍♂ 배우 🙆`+ "\n" + `${obj['actors']}` + "\n";
         }
+        finalStr += `<${obj['poster']}|${obj['title']} 포스터>` + "\n";
       });
       return finalStr;
     } else {
