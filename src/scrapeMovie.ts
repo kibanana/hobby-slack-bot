@@ -1,4 +1,18 @@
 import { fetch } from 'cheerio-httpcli';
+import * as puppeteer from 'puppeteer';
+import * as AWS from 'aws-sdk';
+import config from './config';
+
+const s3 = new AWS.S3();
+
+// Amazon Cognito 인증 공급자를 초기화합니다
+AWS.config.region = config.AWS_REGION; // 리전
+AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+    IdentityPoolId: config.AWS_IDENTITY,
+});
+
+const bucket = "hobby-info-image";
+const key = `hobby-info-image-${Date.now().toString()}.png`;
 
 const scrapeMovieText = async (): Promise<string> => {
 
@@ -85,4 +99,49 @@ const scrapeMovieText = async (): Promise<string> => {
     }
 };
 
-export { scrapeMovieText };
+const scrapeMovieImage = async () => {
+  let result = '';
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  await page.goto('https://movie.naver.com/movie/running/current.nhn#', { waitUntil: 'networkidle2' });
+  await page.setViewport({
+    width: 1280,
+    height: 1430,
+  });
+
+  const main = await page.$('#content');
+  const mainResult = await main!.boundingBox();
+
+  if (mainResult) {
+    const screenshot = await page.screenshot({
+      // path: 'naverMovie.png',
+      type: 'png',
+      clip: {
+        x: mainResult.x,
+        y: mainResult.y,
+        width: Math.min(mainResult.width, page.viewport().width),
+        height: Math.min(mainResult.height, page.viewport().height),
+      }, 
+    });
+    const s3Params = { Bucket: bucket, Key: key, Body: screenshot };
+    result = await s3.putObject(s3Params).promise()
+      .then(async (result: any) => {
+        delete s3Params.Body;
+        return await s3.getSignedUrlPromise('getObject', s3Params)
+          .then((urlResult) => {
+            return urlResult;
+          })
+          .catch((err: Error) => {
+            return '';
+          });
+      })
+      .catch((err: Error) => {
+        return '';
+      });
+  }
+
+  await browser.close();
+  return result;
+};
+
+export { scrapeMovieText, scrapeMovieImage };
