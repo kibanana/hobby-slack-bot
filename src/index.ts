@@ -12,6 +12,13 @@ const rtm = new RTMClient(token);
 
 rtm.on('message', async (event) => {
   const text = event.text;
+
+  // image send 후 사용자가 별다른 메시지를 보내지 않아도
+  // Event가 발생해서 무한루프가 돌길래 if문으로 체크해서 종료
+  if (!text) {
+    return ;
+  }
+
   try {
     await rtm.sendMessage(`Hello <@${event.user}>!`, event.channel);
     if (text.includes('!영화')) {
@@ -19,10 +26,7 @@ rtm.on('message', async (event) => {
       if (imageWordArr.includes(text.split('!영화')[1].trim())) {
         await scrapeMovieImage().then(async (result) => {
           if (result) {
-            await rtm.send('image', {
-              'image_url': result,
-              'alt_text': 'hobby-info-image',
-            });
+            await rtm.sendMessage(`<${result}|Movie Image>`, event.channel);
           } else {
             await rtm.sendMessage(`An error occurred during getting movie image!`, event.channel);
           }
@@ -36,7 +40,6 @@ rtm.on('message', async (event) => {
           }
         });
       }
-      
     } else if (text.includes('!책') || text.includes('!도서')) {
       
     } else {
