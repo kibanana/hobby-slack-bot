@@ -100,7 +100,7 @@ const scrapeMovieText = async (): Promise<string> => {
 };
 
 const scrapeMovieImage = async () => {
-  let result = true;
+  let result = '';
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
   await page.goto('https://movie.naver.com/movie/running/current.nhn#', { waitUntil: 'networkidle2' });
@@ -124,10 +124,20 @@ const scrapeMovieImage = async () => {
       }, 
     });
     const s3Params = { Bucket: bucket, Key: key, Body: screenshot };
-    await s3.putObject(s3Params).promise();
-    return '';
-  } else {
-    result = false;
+    result = await s3.putObject(s3Params).promise()
+      .then(async (result: any) => {
+        delete s3Params.Body;
+        return await s3.getSignedUrlPromise('getObject', s3Params)
+          .then((urlResult) => {
+            return urlResult;
+          })
+          .catch((err: Error) => {
+            return '';
+          });
+      })
+      .catch((err: Error) => {
+        return '';
+      });
   }
 
   await browser.close();
