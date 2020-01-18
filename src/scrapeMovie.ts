@@ -33,7 +33,7 @@ const scrapeMovieText = async (): Promise<string> => {
       $('div.lst_wrap ul li').each((i, elem) => {
         // always reult.length === 7
         if (i >= 7) {
-          return true;
+          return '';
         }
   
         try {
@@ -67,9 +67,11 @@ const scrapeMovieText = async (): Promise<string> => {
               director: movieDirector,
               actors: movieActors,
             });
+          } else {
+            return '';
           }
-        } catch (e) {
-          return false;
+        } catch (err) {
+          return '';
         }
       });
     }); // then

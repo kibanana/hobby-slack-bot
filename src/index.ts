@@ -2,6 +2,8 @@ import { RTMClient } from '@slack/rtm-api';
 
 import config from './config';
 import { scrapeMovieText, scrapeMovieImage } from './scrapeMovie';
+import { scrapeBookText } from './scrapeBook';
+import * as bookUrl from './scrapeBook';
 
 const token: string = config.SLACK_BOT_TOKEN;
 const rtm = new RTMClient(token);
@@ -41,7 +43,13 @@ rtm.on('message', async (event) => {
         });
       }
     } else if (text.includes('!책') || text.includes('!도서')) {
-      
+      scrapeBookText(bookUrl.urlNovelPoemBest).then(async (bookInfo) => {
+        if (bookInfo) {
+          await rtm.sendMessage(bookInfo, event.channel);
+        } else {
+          await rtm.sendMessage(`An error occurred during getting book information!`, event.channel);
+        }
+      });
     } else {
       const reply = await rtm.sendMessage(`I can't understand what you said!`, event.channel);
     }
