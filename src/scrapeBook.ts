@@ -67,10 +67,9 @@ const scrapeBookText = async (url: string) => {
           case 5: finalStr += `5️⃣`; break;
         }
         
-        finalStr += ` <${obj['link']}|${obj['title']}>` + "\n";
-        finalStr += `written by ${obj['author']}` + "\n";
-        finalStr += `published by ${obj['publish']}` + "\n";
-        finalStr += `price: ${obj['price']}원` + "\n";
+        finalStr += ` <${obj['link']}|*${obj['title']}*> : ${obj['price']}원` + "\n";
+        finalStr += `✒️ written by ${obj['author']}` + "\n";
+        finalStr += `🏢 published by ${obj['publish']}` + "\n";
         finalStr += `${obj['summary'].trim()}` + "\n";
       });
       return finalStr;

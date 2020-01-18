@@ -87,7 +87,7 @@ const scrapeMovieText = async (): Promise<string> => {
           case 6: finalStr += `6️⃣`; break;
           case 7: finalStr += `7️⃣`; break;
         }
-        finalStr += ` <${obj['link']}|${obj['title']}> ⭐️${obj['rating']}(${obj['ratingPerson']})` + "\n";
+        finalStr += ` <${obj['link']}|*${obj['title']}*> ⭐️${obj['rating']}(${obj['ratingPerson']})` + "\n";
         finalStr += `📊 예매율 ${obj['ticketRate']}%` + "\n";
         if (obj['genre'].length) {
           finalStr += `✨ 장르`+ "\n" + `${obj['genre']}` + "\n";
