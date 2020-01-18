@@ -17,7 +17,7 @@ rtm.on('message', async (event) => {
 
   // image send 후 사용자가 별다른 메시지를 보내지 않아도
   // Event가 발생해서 무한루프가 돌길래 if문으로 체크해서 종료
-  if (!text) {
+  if (!text.trim()) {
     return ;
   }
 
