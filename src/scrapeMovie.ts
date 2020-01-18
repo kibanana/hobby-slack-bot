@@ -68,7 +68,7 @@ const scrapeMovieText = async (): Promise<string> => {
               actors: movieActors,
             });
           } else {
-            return '';
+            throw new Error();
           }
         } catch (err) {
           return '';

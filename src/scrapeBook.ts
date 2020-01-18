@@ -29,7 +29,7 @@ const scrapeBookText = async (url: string) => {
   await fetch(url)
     .then((res) => {
       const $ = res.$;
-      $('div#category_layout ul li').each((i, elem) => {
+      $('div#category_layout ul li div.goods_info').each((i, elem) => {
         // always reult.length === 5
         if (i >= 5) {
           return '';
@@ -37,6 +37,7 @@ const scrapeBookText = async (url: string) => {
 
         try {
           bookTitle = $(elem).find('div.goods_name a:nth-of-type(1)').text();
+
           if (bookTitle) {
             result.push({
               title: bookTitle,
@@ -44,9 +45,10 @@ const scrapeBookText = async (url: string) => {
               publish: $(elem).find('div.goods_pubGrp span.goods_pub').text(),
               price: $(elem).find('div.goods_price em').text(),
               summary: $(elem).find('div.goods_read').text(),
+              link: 'http://www.yes24.com/' + $(elem).find('div.goods_name a:nth-of-type(1)').attr('href'),
             });
           } else {
-            return '';
+            throw new Error();
           }
         } catch (err) {
           return '';
