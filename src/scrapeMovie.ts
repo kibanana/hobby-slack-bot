@@ -33,7 +33,7 @@ const scrapeMovieText = async (): Promise<string> => {
       $('div.lst_wrap ul li').each((i, elem) => {
         // always reult.length === 7
         if (i >= 7) {
-          return true;
+          return '';
         }
   
         try {
@@ -67,9 +67,11 @@ const scrapeMovieText = async (): Promise<string> => {
               director: movieDirector,
               actors: movieActors,
             });
+          } else {
+            throw new Error();
           }
-        } catch (e) {
-          return false;
+        } catch (err) {
+          return '';
         }
       });
     }); // then
@@ -85,7 +87,7 @@ const scrapeMovieText = async (): Promise<string> => {
           case 6: finalStr += `6️⃣`; break;
           case 7: finalStr += `7️⃣`; break;
         }
-        finalStr += ` <${obj['link']}|${obj['title']}> ⭐️${obj['rating']}(${obj['ratingPerson']})` + "\n";
+        finalStr += ` <${obj['link']}|*${obj['title']}*> ⭐️${obj['rating']}(${obj['ratingPerson']})` + "\n";
         finalStr += `📊 예매율 ${obj['ticketRate']}%` + "\n";
         if (obj['genre'].length) {
           finalStr += `✨ 장르`+ "\n" + `${obj['genre']}` + "\n";
