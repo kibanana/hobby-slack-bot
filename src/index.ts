@@ -58,11 +58,11 @@ rtm.on('message', async (event) => {
             "callback_id": "book",
             "color": "#efdc05",
             "actions": [
-              { "style": "primary", "name": "소설/시/희곡", "text": "소설/시/희곡", "type": "button", "value": "소설/시/희곡" },
-              { "style": "primary", "name": "경제/경영", "text": "경제 경영", "type": "button", "value": "경제/경영" },
-              { "style": "primary", "name": "사회/정치", "text": "사회 정치", "type": "button", "value": "사회/정치" },
-              { "style": "primary", "name": "에세이", "text": "에세이", "type": "button", "value": "에세이" },
-              { "style": "primary", "name": "여행", "text": "여행", "type": "button", "value": "여행" },
+              { "name": bookUrl.urlKoreanNovel.v, "text": bookUrl.urlKoreanNovel.v, "type": "button", "value": bookUrl.urlKoreanNovel.v },
+              { "name": bookUrl.urlEngNovel.v, "text": bookUrl.urlEngNovel.v, "type": "button", "value": bookUrl.urlEngNovel.v },
+              { "name": bookUrl.urlChineseNovel.v, "text": bookUrl.urlChineseNovel.v, "type": "button", "value": bookUrl.urlChineseNovel.v },
+              { "name": bookUrl.urlFrenchNovel.v, "text": bookUrl.urlFrenchNovel.v, "type": "button", "value": bookUrl.urlFrenchNovel.v },
+              { "name": bookUrl.urlGermanNovel.v, "text": bookUrl.urlGermanNovel.v, "type": "button", "value": bookUrl.urlGermanNovel.v },
             ]
           },
           {
@@ -70,11 +70,10 @@ rtm.on('message', async (event) => {
             "callback_id": "book",
             "color": "#efdc05",
             "actions": [
-              { "style": "primary", "name": "역사", "text": "역사", "type": "button", "value": "역사" },
-              { "style": "primary", "name": "예술", "text": "예술", "type": "button", "value": "예술" },
-              { "style": "primary", "name": "자기계발", "text": "자기계발", "type": "button", "value": "자기계발" },
-              { "style": "primary", "name": "자연과학", "text": "자연과학", "type": "button", "value": "자연과학" },
-              { "style": "primary", "name": "인문", "text": "인문", "type": "button", "value": "인문" },
+              { "name": bookUrl.urlRussianNovel.v, "text": bookUrl.urlRussianNovel.v, "type": "button", "value": bookUrl.urlRussianNovel.v },
+              { "name": bookUrl.urlSpanishNovel.v, "text": bookUrl.urlSpanishNovel.v, "type": "button", "value": bookUrl.urlSpanishNovel.v },
+              { "name": bookUrl.urlEuropeNovel.v, "text": bookUrl.urlEuropeNovel.v, "type": "button", "value": bookUrl.urlEuropeNovel.v },
+              { "name": bookUrl.urlPoem.v, "text": bookUrl.urlPoem.v, "type": "button", "value": bookUrl.urlPoem.v },
             ]
           },
           {
@@ -82,11 +81,11 @@ rtm.on('message', async (event) => {
             "callback_id": "book",
             "color": "#efdc05",
             "actions": [
-              { "name": "한국소설", "text": "한국소설", "type": "button", "value": "한국소설" },
-              { "name": "영미소설", "text": "영미소설", "type": "button", "value": "영미소설" },
-              { "name": "중국소설", "text": "중국소설", "type": "button", "value": "중국소설" },
-              { "name": "프랑스소설", "text": "프랑스소설", "type": "button", "value": "프랑스소설" },
-              { "name": "독일소설", "text": "독일소설", "type": "button", "value": "독일소설" },
+              { "style": "primary", "name": bookUrl.urlNovelPoemBest.v, "text": bookUrl.urlNovelPoemBest.v, "type": "button", "value": bookUrl.urlNovelPoemBest.v },
+              { "style": "primary", "name": bookUrl.urlEconomyBest.v, "text": bookUrl.urlEconomyBest.v, "type": "button", "value": bookUrl.urlEconomyBest.v },
+              { "style": "primary", "name": bookUrl.urlSocietyBest.v, "text": bookUrl.urlSocietyBest.v, "type": "button", "value": bookUrl.urlSocietyBest.v },
+              { "style": "primary", "name": bookUrl.urlEssayBest.v, "text": bookUrl.urlEssayBest.v, "type": "button", "value": bookUrl.urlEssayBest.v },
+              { "style": "primary", "name": bookUrl.urlTravelBest.v, "text": bookUrl.urlTravelBest.v, "type": "button", "value": bookUrl.urlTravelBest.v },
             ]
           },
           {
@@ -94,10 +93,11 @@ rtm.on('message', async (event) => {
             "callback_id": "book",
             "color": "#efdc05",
             "actions": [
-              { "name": "러시아소설", "text": "러시아소설", "type": "button", "value": "러시아소설" },
-              { "name": "스페인/중남미소설", "text": "스페인/중남미소설", "type": "button", "value": "스페인/중남미소설" },
-              { "name": "북유럽소설", "text": "북유럽소설", "type": "button", "value": "북유럽소설" },
-              { "name": "시/희곡", "text": "시/희곡", "type": "button", "value": "시/희곡" },
+              { "style": "primary", "name": bookUrl.urlHistoryBest.v, "text": bookUrl.urlHistoryBest.v, "type": "button", "value": bookUrl.urlHistoryBest.v },
+              { "style": "primary", "name": bookUrl.urlArtBest.v, "text": bookUrl.urlArtBest.v, "type": "button", "value": bookUrl.urlArtBest.v },
+              { "style": "primary", "name": bookUrl.urlSelfImprovementBest.v, "text": bookUrl.urlSelfImprovementBest.v, "type": "button", "value": bookUrl.urlSelfImprovementBest.v },
+              { "style": "primary", "name": bookUrl.urlScienceBest.v, "text": bookUrl.urlScienceBest.v, "type": "button", "value": bookUrl.urlScienceBest.v },
+              { "style": "primary", "name": bookUrl.urlHumanitiesBest.v, "text": bookUrl.urlHumanitiesBest.v, "type": "button", "value": bookUrl.urlHumanitiesBest.v },
             ]
           }
         ],
@@ -105,8 +105,7 @@ rtm.on('message', async (event) => {
         channel: event.channel,
       });
       
-      return ;
-      scrapeBookText(bookUrl.urlNovelPoemBest).then(async (bookInfo) => {
+      scrapeBookText(bookUrl.urlNovelPoemBest.url).then(async (bookInfo) => {
         if (bookInfo) {
           await rtm.sendMessage(bookInfo, event.channel);
         } else {
