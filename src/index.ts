@@ -1,12 +1,16 @@
 import { RTMClient } from '@slack/rtm-api';
-const { WebClient } = require('@slack/web-api');
+import { WebClient } from '@slack/web-api';
 
-import config from './config';
 import { scrapeMovieText, scrapeMovieImage } from './scrapeMovie';
 import { scrapeBookText } from './scrapeBook';
 import * as bookUrl from './scrapeBook';
 
-const token: string = config.SLACK_BOT_TOKEN;
+import { config } from 'dotenv';
+import configFile from './config';
+
+config();
+
+const token: string = process.env.SLACK_BOT_TOKEN ? process.env.SLACK_BOT_TOKEN : configFile.SLACK_BOT_TOKEN;
 const rtm = new RTMClient(token);
 const web = new WebClient(token);
 
@@ -15,7 +19,7 @@ const web = new WebClient(token);
 })();
 
 rtm.on('message', async (event) => {
-  const text = event.text;
+  const text: string = event.text ? event.text : ' ';
 
   // image send 후 사용자가 별다른 메시지를 보내지 않아도
   // Event가 발생해서 무한루프가 돌길래 if문으로 체크해서 종료
@@ -53,7 +57,6 @@ rtm.on('message', async (event) => {
             "fallback": "notBook",
             "callback_id": "book",
             "color": "#efdc05",
-            "attachment_type": "default",
             "actions": [
               { "style": "primary", "name": "소설/시/희곡", "text": "소설/시/희곡", "type": "button", "value": "소설/시/희곡" },
               { "style": "primary", "name": "경제/경영", "text": "경제 경영", "type": "button", "value": "경제/경영" },
@@ -66,7 +69,6 @@ rtm.on('message', async (event) => {
             "fallback": "notBook",
             "callback_id": "book",
             "color": "#efdc05",
-            "attachment_type": "default",
             "actions": [
               { "style": "primary", "name": "역사", "text": "역사", "type": "button", "value": "역사" },
               { "style": "primary", "name": "예술", "text": "예술", "type": "button", "value": "예술" },
@@ -79,7 +81,6 @@ rtm.on('message', async (event) => {
             "fallback": "notBook",
             "callback_id": "book",
             "color": "#efdc05",
-            "attachment_type": "default",
             "actions": [
               { "name": "한국소설", "text": "한국소설", "type": "button", "value": "한국소설" },
               { "name": "영미소설", "text": "영미소설", "type": "button", "value": "영미소설" },
@@ -92,7 +93,6 @@ rtm.on('message', async (event) => {
             "fallback": "notBook",
             "callback_id": "book",
             "color": "#efdc05",
-            "attachment_type": "default",
             "actions": [
               { "name": "러시아소설", "text": "러시아소설", "type": "button", "value": "러시아소설" },
               { "name": "스페인/중남미소설", "text": "스페인/중남미소설", "type": "button", "value": "스페인/중남미소설" },

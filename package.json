@@ -21,6 +21,7 @@
     "@types/puppeteer": "^2.0.0",
     "aws-sdk": "^2.603.0",
     "cheerio-httpcli": "^0.7.4",
+    "dotenv": "^8.2.0",
     "puppeteer": "^2.0.0"
   },
   "devDependencies": {}

@@ -1,14 +1,21 @@
 import { fetch } from 'cheerio-httpcli';
 import * as puppeteer from 'puppeteer';
 import * as AWS from 'aws-sdk';
-import config from './config';
+
+import configFile from './config';
+import { config } from 'dotenv';
+
+config();
 
 const s3 = new AWS.S3();
 
+const awsResion: string = process.env.AWS_REGION ? process.env.AWS_REGION : configFile.AWS_REGION;
+const awsCredentials: string = process.env.AWS_IDENTITY ? process.env.AWS_IDENTITY : configFile.AWS_IDENTITY;
+
 // Amazon Cognito 인증 공급자를 초기화합니다
-AWS.config.region = config.AWS_REGION; // 리전
+AWS.config.region = awsResion // 리전
 AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-    IdentityPoolId: config.AWS_IDENTITY,
+    IdentityPoolId: awsCredentials
 });
 
 const bucket = "hobby-info-image";
