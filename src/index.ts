@@ -1,5 +1,9 @@
 import { RTMClient } from '@slack/rtm-api';
-import { WebClient } from '@slack/web-api';
+import { createMessageAdapter } from '@slack/interactive-messages';
+
+import fetch from 'node-fetch';
+import * as http from 'http';
+import * as express from 'express';
 
 import { scrapeMovieText, scrapeMovieImage } from './scrapeMovie';
 import { scrapeBookText } from './scrapeBook';
@@ -10,9 +14,27 @@ import configFile from './config';
 
 config();
 
-const token: string = process.env.SLACK_BOT_TOKEN ? process.env.SLACK_BOT_TOKEN : configFile.SLACK_BOT_TOKEN;
+const signingToken: string = process.env.SIGNING_TOKEN ? process.env.SIGNING_TOKEN : configFile.SIGNING_TOKEN;
+const token: string = process.env.ACCESS_TOKEN ? process.env.ACCESS_TOKEN : configFile.ACCESS_TOKEN;
+const port: number = process.env.PORT ? Number(process.env.PORT) : configFile.PORT;
 const rtm = new RTMClient(token);
-const web = new WebClient(token);
+
+const actionId:string = 'bookSelect';
+
+const slackInteractions = createMessageAdapter(signingToken);
+
+const app = express();
+app.use('/slack/actions', slackInteractions.expressMiddleware());
+http.createServer(app).listen(port, () => {
+  console.log(`server listening on port ${port}`);
+});
+
+slackInteractions.action(actionId, async (payload: any, respond: any) => {
+  console.log(payload);
+  console.log(respond);
+  await respond({ text: 'Thanks for your submission.', response_type: 'in_channel', replace_original: true });
+  // return { text: 'HaHa' };
+});
 
 (async () => {
   await rtm.start();
@@ -22,8 +44,8 @@ const errorMessage = "An error occurred";
 const unrecogErrorMessage = "I can't understand what you said!";
 
 rtm.on('message', async (event) => {
-  console.log(event);
-  console.log(`message: ${event.text}`);
+  // console.log(JSON.stringify(event));
+  // console.log(`message: ${event.text}`);
   const text: string = event.text ? event.text : ' ';
 
   // image send 후 사용자가 별다른 메시지를 보내지 않아도
@@ -61,22 +83,18 @@ rtm.on('message', async (event) => {
           "ok_text": "Yes",
           "dismiss_text": "No"
         };
-        const actionId:string = 'bookSelect';
-
-        await web.chat.postMessage({
-          type: "block_actions",
-          icon_emoji: ':books:',
-          channel: event.channel,
-          // thread_ts: event.ts, // 사용성 저하 우려
-          token: token,
-          response_type: "in_channel",
-          response_url: slackWebHookUrl,
-  
-          text: "hobby-info-slack-bot",
-          action_id: actionId,
+        const blocks = {
+          "type": "block_actions",
+          "channel": event.channel,
+          // "thread_ts": event.ts, // 사용성 저하 우려
+          "token": signingToken,
+          "response_url": slackWebHookUrl,
+          "response_type": "in_channel",
+          "action_id": actionId,
+          "text": "hobby-info-slack-bot",
           "blocks": [
             {
-              "type": "actions",
+              "type": "section",
               "block_id": actionId,
               "text": {
                 "type": "mrkdwn",
@@ -127,8 +145,21 @@ rtm.on('message', async (event) => {
                   }
                 ],
               }
-            },
+            }
           ]
+        };
+
+        fetch(slackWebHookUrl, {
+          method: 'POST',
+          body: JSON.stringify(blocks),
+          headers: { 'Content-Type': 'application/json' },
+        })
+        .then(res => res.text())
+        .then(body => {
+          console.log(body);
+        })
+        .catch(async (err) => {
+          await rtm.sendMessage(unrecogErrorMessage, event.channel);
         });
 
         return ;
@@ -142,14 +173,12 @@ rtm.on('message', async (event) => {
         });
       } else {
         if ((!text.trim()) || text.includes(errorMessage) || text.includes(unrecogErrorMessage) || text.includes('Hello')) {
-          console.log('error111');
           await rtm.sendMessage(unrecogErrorMessage, event.channel);
           return ;
         }
       }
     } catch (error) {
       if ((!text.trim()) || text.includes(errorMessage) || text.includes(unrecogErrorMessage) || text.includes('Hello')) {
-        console.log('error222');
         await rtm.sendMessage(errorMessage, event.channel);
         return ;
       }
