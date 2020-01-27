@@ -1,102 +1,105 @@
 import { fetch } from 'cheerio-httpcli';
 import * as puppeteer from 'puppeteer';
 
-export const urlNovelPoemBest = {
-  url: 'http://www.yes24.com/24/Category/More/001001046?ElemNo=104&ElemSeq=1',
-  v: '소설/시/희곡',
-  name: 'NovelPoemBest',
-};
-export const urlEconomyBest = {
-  url: 'http://www.yes24.com/24/Category/More/001001025?ElemNo=104&ElemSeq=1',
-  v: '경제 경영',
-  name: 'EconomyBest',
-};
-export const urlSocietyBest = {
-  url: 'http://www.yes24.com/24/Category/More/001001022?ElemNo=104&ElemSeq=1',
-  v: '사회 정치',
-  name: 'SocietyBest',
-};
-export const urlEssayBest = {
-  url: 'http://www.yes24.com/24/Category/More/001001047?ElemNo=104&ElemSeq=1',
-  v: '에세이',
-  name: 'EssayBest',
-};
-export const urlTravelBest = {
-  url: 'http://www.yes24.com/24/Category/More/001001009?ElemNo=104&ElemSeq=1',
-  v: '여행',
-  name: 'TravelBest',
-};
-export const urlHistoryBest = {
-  url: 'http://www.yes24.com/24/Category/More/001001010?ElemNo=104&ElemSeq=1',
-  v: '역사',
-  name: 'HistoryBest',
-};
-export const urlArtBest = {
-  url: 'http://www.yes24.com/24/Category/More/001001007?ElemNo=104&ElemSeq=1',
-  v: '예술',
-  name: 'ArtBest',
-};
-export const urlSelfImprovementBest = {
-  url: 'http://www.yes24.com/24/Category/More/001001026?ElemNo=104&ElemSeq=1',
-  v: '자기계발',
-  name: 'SelfImprovementBest',
-};
-export const urlScienceBest = {
-  url: 'http://www.yes24.com/24/Category/More/001001002?ElemNo=104&ElemSeq=1',
-  v: '자연과학',
-  name: 'ScienceBest',
-};
-export const urlHumanitiesBest = {
-  url: 'http://www.yes24.com/24/Category/More/001001019?ElemNo=104&ElemSeq=1',
-  v: '인문',
-  name: 'HumanitiesBest',
-};
+export const categoryArr = [
+  {
+    url: 'http://www.yes24.com/24/Category/More/001001046?ElemNo=104&ElemSeq=1',
+    v: '소설/시/희곡',
+    name: 'NovelPoemBest',
+  },
+  {
+    url: 'http://www.yes24.com/24/Category/More/001001025?ElemNo=104&ElemSeq=1',
+    v: '경제 경영',
+    name: 'EconomyBest',
+  },
+  {
+    url: 'http://www.yes24.com/24/Category/More/001001022?ElemNo=104&ElemSeq=1',
+    v: '사회 정치',
+    name: 'SocietyBest',
+  },
+  {
+    url: 'http://www.yes24.com/24/Category/More/001001047?ElemNo=104&ElemSeq=1',
+    v: '에세이',
+    name: 'EssayBest',
+  },
+  {
+    url: 'http://www.yes24.com/24/Category/More/001001009?ElemNo=104&ElemSeq=1',
+    v: '여행',
+    name: 'TravelBest',
+  },
+  {
+    url: 'http://www.yes24.com/24/Category/More/001001010?ElemNo=104&ElemSeq=1',
+    v: '역사',
+    name: 'HistoryBest',
+  },
+  {
+    url: 'http://www.yes24.com/24/Category/More/001001007?ElemNo=104&ElemSeq=1',
+    v: '예술',
+    name: 'ArtBest',
+  },
+  {
+    url: 'http://www.yes24.com/24/Category/More/001001026?ElemNo=104&ElemSeq=1',
+    v: '자기계발',
+    name: 'SelfImprovementBest',
+  },
+  {
+    url: 'http://www.yes24.com/24/Category/More/001001002?ElemNo=104&ElemSeq=1',
+    v: '자연과학',
+    name: 'ScienceBest',
+  },
+  {
+    url: 'http://www.yes24.com/24/Category/More/001001019?ElemNo=104&ElemSeq=1',
+    v: '인문',
+    name: 'HumanitiesBest',
+  },
+  {
+    url: 'http://www.yes24.com/24/Category/Display/001001046001',
+    v: '한국소설',
+    name: 'KoreanNovel',
+  },
+  {
+    url: 'http://www.yes24.com/24/Category/Display/001001046002',
+    v: '영미소설',
+    name: 'EngNovel',
+  },
+  {
+    url: 'http://www.yes24.com/24/Category/Display/001001046004',
+    v: '중국소설',
+    name: 'ChineseNovel',
+  },
+  {
+    url: 'http://www.yes24.com/24/Category/Display/001001046005',
+    v: '프랑스소설',
+    name: 'FrenchNovel',
+  },
+  {
+    url: 'http://www.yes24.com/24/Category/Display/001001046006',
+    v: '독일소설',
+    name: 'GermanNovel',
+  },
+  {
+    url: 'http://www.yes24.com/24/Category/Display/001001046007',
+    v: '러시아소설',
+    name: 'RussianNovel',
+  },
+  {
+    url: 'http://www.yes24.com/24/Category/Display/001001046008',
+    v: '스페인/중남미소설',
+    name: 'SpanishNovel',
+  },
+  {
+    url: 'http://www.yes24.com/24/Category/Display/001001046009',
+    v: '북유럽소설',
+    name: 'EuropeNovel',
+  },
+  {
+    url: 'http://www.yes24.com/24/Category/Display/001001046014',
+    v: '시/희곡',
+    name: 'Poem',
+  },
+]
 
-export const urlKoreanNovel = {
-  url: 'http://www.yes24.com/24/Category/Display/001001046001',
-  v: '한국소설',
-  name: 'KoreanNovel',
-};
-export const urlEngNovel = {
-  url: 'http://www.yes24.com/24/Category/Display/001001046002',
-  v: '영미소설',
-  name: 'EngNovel',
-};
-export const urlChineseNovel = {
-  url: 'http://www.yes24.com/24/Category/Display/001001046004',
-  v: '중국소설',
-  name: 'ChineseNovel',
-};
-export const urlFrenchNovel = {
-  url: 'http://www.yes24.com/24/Category/Display/001001046005',
-  v: '프랑스소설',
-  name: 'FrenchNovel',
-};
-export const urlGermanNovel = {
-  url: 'http://www.yes24.com/24/Category/Display/001001046006',
-  v: '독일소설',
-  name: 'GermanNovel',
-};
-export const urlRussianNovel = {
-  url: 'http://www.yes24.com/24/Category/Display/001001046007',
-  v: '러시아소설',
-  name: 'RussianNovel',
-};
-export const urlSpanishNovel = {
-  url: 'http://www.yes24.com/24/Category/Display/001001046008',
-  v: '스페인/중남미소설',
-  name: 'SpanishNovel',
-};
-export const urlEuropeNovel = {
-  url: 'http://www.yes24.com/24/Category/Display/001001046009',
-  v: '북유럽소설',
-  name: 'EuropeNovel',
-};
-export const urlPoem = {
-  url: 'http://www.yes24.com/24/Category/Display/001001046014',
-  v: '시/희곡',
-  name: 'Poem',
-};
+export const categoryNameArr = categoryArr.map((item) => item.name);
 
 const scrapeBookText = async (url: string) => {
   let result: object[] = [];

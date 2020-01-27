@@ -6,46 +6,62 @@ import * as http from 'http';
 import * as express from 'express';
 
 import { scrapeMovieText, scrapeMovieImage } from './scrapeMovie';
-import { scrapeBookText } from './scrapeBook';
-import * as bookUrl from './scrapeBook';
+import { categoryArr, categoryNameArr, scrapeBookText } from './scrapeBook';
 
 import { config } from 'dotenv';
 import configFile from './config';
 
 config();
 
+interface IselectPayload {
+  type: string,
+  actions: [
+    {
+      name: string,
+      type: string,
+      selected_options: {
+        '0': {
+          value: string
+        }
+      }
+    }
+  ]
+}
+
 const signingToken: string = process.env.SIGNING_TOKEN ? process.env.SIGNING_TOKEN : configFile.SIGNING_TOKEN;
 const token: string = process.env.ACCESS_TOKEN ? process.env.ACCESS_TOKEN : configFile.ACCESS_TOKEN;
 const port: number = process.env.PORT ? Number(process.env.PORT) : configFile.PORT;
-const rtm = new RTMClient(token);
-
+const slackWebHookUrl = process.env.SLACK_WEBHOOK_URL ? process.env.SLACK_WEBHOOK_URL : configFile.SLACK_WEBHOOK_URL;
 const actionId:string = 'bookSelect';
+const errorMessage = "An error occurred";
+const unrecogErrorMessage = "I can't understand what you said!";
 
 const slackInteractions = createMessageAdapter(signingToken);
 
 const app = express();
-app.use('/slack/actions', slackInteractions.expressMiddleware());
+
+app.post('/slack/actions', slackInteractions.expressMiddleware());
 http.createServer(app).listen(port, () => {
   console.log(`server listening on port ${port}`);
 });
 
-slackInteractions.action(actionId, async (payload: any, respond: any) => {
-  console.log(payload);
-  console.log(respond);
-  await respond({ text: 'Thanks for your submission.', response_type: 'in_channel', replace_original: true });
-  // return { text: 'HaHa' };
+slackInteractions.action(actionId, async (payload: IselectPayload, respond: any) => {
+  const categoryResult: string = payload.actions[0].selected_options['0']['value'];
+  const categoryResultIdx: number = categoryNameArr.indexOf(categoryResult);
+  await respond({
+    text: `*${categoryArr[categoryResultIdx].v}* 카테고리 선택`,
+    response_type: 'in_channel',
+    replace_original: true
+  });
 });
+
+const rtm = new RTMClient(token);
 
 (async () => {
   await rtm.start();
 })();
 
-const errorMessage = "An error occurred";
-const unrecogErrorMessage = "I can't understand what you said!";
-
 rtm.on('message', async (event) => {
-  // console.log(JSON.stringify(event));
-  // console.log(`message: ${event.text}`);
   const text: string = event.text ? event.text : ' ';
 
   // image send 후 사용자가 별다른 메시지를 보내지 않아도
@@ -76,94 +92,75 @@ rtm.on('message', async (event) => {
         }
       } else if (text.includes('!책') || text.includes('!도서')) { // 책 1단계
   
-        const slackWebHookUrl = process.env.SLACK_WEBHOOK_URL ? process.env.SLACK_WEBHOOK_URL : configFile.SLACK_WEBHOOK_URL;
         const confirmObj = {
           "title": "Are you sure?",
           "text": "Wouldn\'t you prefer other category?",
           "ok_text": "Yes",
           "dismiss_text": "No"
         };
-        const blocks = {
-          "type": "block_actions",
-          "channel": event.channel,
+        const selectCategory = {
+          "type": "interactive_message",
           // "thread_ts": event.ts, // 사용성 저하 우려
-          "token": signingToken,
-          "response_url": slackWebHookUrl,
-          "response_type": "in_channel",
-          "action_id": actionId,
-          "text": "hobby-info-slack-bot",
-          "blocks": [
+          "attachments": [
             {
-              "type": "section",
-              "block_id": actionId,
-              "text": {
-                "type": "mrkdwn",
-                "text": "어떤 *책* 의 순위를 보고 싶으신가요?"
-              },
-              "accessory": {
-                "action_id": actionId,
-                "type": "static_select",
-                "placeholder": {
-                  "type": "plain_text",
-                  "text": "카테고리를 선택하세요"
-                },
-                "option_groups": [
-                  {
-                    "label": {
-                      "type": "plain_text",
-                      "text": "Book"
+              "text": "어떤 *책* 의 순위를 보고 싶으신가요?",
+              "mrkdwn_in": ["text"],
+              "callback_id": actionId,
+              "fallback": actionId + "Fail",
+              "actions": [
+                {
+                  "name": actionId,
+                  "type": "select",
+                  "option_groups": [
+                    {
+                      "text": "책",
+                      "options": [
+                        { "text": categoryArr[0].v, "value": categoryArr[0].name },
+                        { "text": categoryArr[1].v, "value": categoryArr[1].name },
+                        { "text": categoryArr[2].v, "value": categoryArr[2].name },
+                        { "text": categoryArr[3].v, "value": categoryArr[3].name },
+                        { "text": categoryArr[4].v, "value": categoryArr[4].name },
+                        { "text": categoryArr[5].v, "value": categoryArr[5].name },
+                        { "text": categoryArr[6].v, "value": categoryArr[6].name },
+                        { "text": categoryArr[7].v, "value": categoryArr[7].name },
+                        { "text": categoryArr[8].v, "value": categoryArr[8].name },
+                        { "text": categoryArr[9].v, "value": categoryArr[9].name },
+                      ]
                     },
-                    "options": [
-                      { "text": { "type": "plain_text", "text": bookUrl.urlNovelPoemBest.v }, "value": bookUrl.urlNovelPoemBest.name },
-                      { "text": { "type": "plain_text", "text": bookUrl.urlEconomyBest.v }, "value": bookUrl.urlEconomyBest.name },
-                      { "text": { "type": "plain_text", "text": bookUrl.urlSocietyBest.v }, "value": bookUrl.urlSocietyBest.name },
-                      { "text": { "type": "plain_text", "text": bookUrl.urlEssayBest.v }, "value": bookUrl.urlEssayBest.name },
-                      { "text": { "type": "plain_text", "text": bookUrl.urlTravelBest.v }, "value": bookUrl.urlTravelBest.name },
-                      { "text": { "type": "plain_text", "text": bookUrl.urlHistoryBest.v }, "value": bookUrl.urlHistoryBest.name },
-                      { "text": { "type": "plain_text", "text": bookUrl.urlArtBest.v }, "value": bookUrl.urlArtBest.name },
-                      { "text": { "type": "plain_text", "text": bookUrl.urlSelfImprovementBest.v }, "value": bookUrl.urlSelfImprovementBest.name },
-                      { "text": { "type": "plain_text", "text": bookUrl.urlScienceBest.v }, "value": bookUrl.urlScienceBest.name },
-                      { "text": { "type": "plain_text", "text": bookUrl.urlHumanitiesBest.v }, "value": bookUrl.urlHumanitiesBest.name },
-                    ]
-                  },
-                  {
-                    "label": {
-                      "type": "plain_text",
-                      "text": "Novel"
-                    },
-                    "options": [
-                      { "text": { "type": "plain_text", "text": bookUrl.urlKoreanNovel.v }, "value": bookUrl.urlKoreanNovel.name },
-                      { "text": { "type": "plain_text", "text": bookUrl.urlEngNovel.v }, "value": bookUrl.urlEngNovel.name },
-                      { "text": { "type": "plain_text", "text": bookUrl.urlChineseNovel.v }, "value": bookUrl.urlChineseNovel.name },
-                      { "text": { "type": "plain_text", "text": bookUrl.urlFrenchNovel.v }, "value": bookUrl.urlFrenchNovel.name },
-                      { "text": { "type": "plain_text", "text": bookUrl.urlGermanNovel.v }, "value": bookUrl.urlGermanNovel.name },
-                      { "text": { "type": "plain_text", "text": bookUrl.urlRussianNovel.v }, "value": bookUrl.urlRussianNovel.name },
-                      { "text": { "type": "plain_text", "text": bookUrl.urlSpanishNovel.v }, "value": bookUrl.urlSpanishNovel.name },
-                      { "text": { "type": "plain_text", "text": bookUrl.urlEuropeNovel.v }, "value": bookUrl.urlEuropeNovel.name },
-                      { "text": { "type": "plain_text", "text": bookUrl.urlPoem.v }, "value": bookUrl.urlPoem.name },
-                    ]
-                  }
-                ],
-              }
+                    {
+                      "text": "소설",
+                      "options": [
+                        { "text": categoryArr[10].v, "value": categoryArr[10].name },
+                        { "text": categoryArr[11].v, "value": categoryArr[11].name },
+                        { "text": categoryArr[12].v, "value": categoryArr[12].name },
+                        { "text": categoryArr[13].v, "value": categoryArr[13].name },
+                        { "text": categoryArr[14].v, "value": categoryArr[14].name },
+                        { "text": categoryArr[15].v, "value": categoryArr[15].name },
+                        { "text": categoryArr[16].v, "value": categoryArr[16].name },
+                        { "text": categoryArr[17].v, "value": categoryArr[17].name },
+                        { "text": categoryArr[18].v, "value": categoryArr[18].name },
+                      ]
+                    }
+                  ]
+                }
+              ]
             }
-          ]
+          ],
         };
 
         fetch(slackWebHookUrl, {
           method: 'POST',
-          body: JSON.stringify(blocks),
+          body: JSON.stringify(selectCategory),
           headers: { 'Content-Type': 'application/json' },
         })
         .then(res => res.text())
-        .then(body => {
-          console.log(body);
-        })
+        .then(body => {})
         .catch(async (err) => {
           await rtm.sendMessage(unrecogErrorMessage, event.channel);
         });
 
         return ;
-        scrapeBookText(bookUrl.urlNovelPoemBest.url).then(async (bookInfo) => {
+        scrapeBookText(categoryArr[0].url).then(async (bookInfo) => {
           if (bookInfo) {
             await rtm.sendMessage(bookInfo, event.channel);
           } else {
