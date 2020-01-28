@@ -2,10 +2,11 @@ import { RTMClient } from '@slack/rtm-api';
 import { createMessageAdapter } from '@slack/interactive-messages';
 
 import fetch from 'node-fetch';
+import * as FormData from 'form-data';
 import * as http from 'http';
 import * as express from 'express';
 
-import { scrapeMovieText, scrapeMovieImage } from './scrapeMovie';
+import { scrapeMovieText, scrapeMovieImage, scrapeMovieImageWithoutAWS } from './scrapeMovie';
 import { categoryArr, categoryNameArr, scrapeBookText } from './scrapeBook';
 
 import { config } from 'dotenv';
@@ -29,6 +30,7 @@ interface IselectPayload {
 }
 
 const signingToken: string = process.env.SIGNING_TOKEN ? process.env.SIGNING_TOKEN : configFile.SIGNING_TOKEN;
+const apiToken: string = process.env.API_TOKEN ? process.env.API_TOKEN : configFile.API_TOKEN;
 const token: string = process.env.ACCESS_TOKEN ? process.env.ACCESS_TOKEN : configFile.ACCESS_TOKEN;
 const port: number = process.env.PORT ? Number(process.env.PORT) : configFile.PORT;
 const channel: string = process.env.CHANNEL ? process.env.CHANNEL : configFile.CHANNEL;
@@ -49,7 +51,7 @@ http.createServer(app).listen(port, () => {
 slackInteractions.action(actionId, async (payload: IselectPayload, respond: any) => {
   const categoryResult: string = payload.actions[0].selected_options['0']['value'];
   const categoryResultIdx: number = categoryNameArr.indexOf(categoryResult);
-  getScrapedBookInfo(categoryArr[categoryResultIdx].url);
+  getScrapedBookInfo(channel, categoryArr[categoryResultIdx].url);
   await respond({
     text: `*${categoryArr[categoryResultIdx].v}* 카테고리 선택`,
     response_type: 'in_channel',
@@ -57,7 +59,7 @@ slackInteractions.action(actionId, async (payload: IselectPayload, respond: any)
   });
 });
 
-function getScrapedBookInfo(url: string) {
+function getScrapedBookInfo(channel: string, url: string) {
   scrapeBookText(url).then(async (bookInfo) => {
     if (bookInfo) {
       await rtm.sendMessage(bookInfo, channel);
@@ -87,12 +89,50 @@ rtm.on('message', async (event) => {
       if (text.includes('!영화')) {
         const imageWordArr = ['이미지', '사진', '스크린샷', 'img', 'image', 'screenshot'];
         if (imageWordArr.includes(text.split('!영화')[1].trim())) {
-          await scrapeMovieImage().then(async (result) => {
-            if (result) {
-              await rtm.sendMessage(`<${result}|Movie Image>`, channel);
-            } else {
+          // await scrapeMovieImage().then(async (result) => {
+          //   if (result) {
+          //     await rtm.sendMessage(`<${result}|Movie Image>`, channel);
+          //   } else {
+          //     await rtm.sendMessage(`${errorMessage} during getting movie image!`, channel);
+          //     return ;
+          //   }
+          // });
+          await scrapeMovieImageWithoutAWS().then(async (result) => {
+            if (!result) {
               await rtm.sendMessage(`${errorMessage} during getting movie image!`, channel);
               return ;
+            } else {
+              try {
+                const form = new FormData();
+                form.append('channels', channel);
+                form.append('token', apiToken);
+                form.append('file', JSON.stringify({
+                  value: result,
+                  options: {
+                    filename: `hobby-info-image-${Date.now()}`
+                  }
+                }));
+                form.append('filename', `hobby-info-image-${Date.now()}`);
+                form.append('filetype', 'image/png');
+                form.append('title', `hobby-info-image-${Date.now()}.png`);
+                form.append('initial_comment', Date.now());
+                form.append('content', result);
+  
+                fetch('https://slack.com/api/files.upload', {
+                  method: 'POST',
+                  body: form,
+                  headers: Object.assign(form.getHeaders(), { 'Content-Type': 'multipart/form-data' }),
+                })
+                .then(res => res.text())
+                .then(body => {
+                  console.log(body);
+                })
+                .catch(async (err) => {
+                  await rtm.sendMessage(`${errorMessage} during getting movie image!`, channel);
+                }); 
+              } catch (err) {
+                console.log(err);
+              }
             }
           });
         } else { // text가 default
