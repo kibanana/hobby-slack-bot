@@ -106,18 +106,15 @@ rtm.on('message', async (event) => {
                 const form = new FormData();
                 form.append('channels', channel);
                 form.append('token', apiToken);
-                form.append('file', JSON.stringify({
-                  value: result,
-                  options: {
-                    filename: `hobby-info-image-${Date.now()}`
-                  }
-                }));
                 form.append('filename', `hobby-info-image-${Date.now()}`);
                 form.append('filetype', 'image/png');
                 form.append('title', `hobby-info-image-${Date.now()}.png`);
                 form.append('initial_comment', Date.now());
-                form.append('content', result);
-  
+                form.append('file', result, {
+                  contentType: 'text/plain',
+                  filename: `hobby-info-image-${Date.now()}`,
+                });
+
                 fetch('https://slack.com/api/files.upload', {
                   method: 'POST',
                   body: form,
@@ -129,7 +126,7 @@ rtm.on('message', async (event) => {
                 })
                 .catch(async (err) => {
                   await rtm.sendMessage(`${errorMessage} during getting movie image!`, channel);
-                }); 
+                });
               } catch (err) {
                 console.log(err);
               }
