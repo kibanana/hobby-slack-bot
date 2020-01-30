@@ -7,7 +7,7 @@ import * as http from 'http';
 import * as express from 'express';
 
 import { scrapeMovieText, scrapeMovieImage, scrapeMovieImageWithoutAWS } from './scrapeMovie';
-import { categoryArr, categoryNameArr, scrapeBookText } from './scrapeBook';
+import { categoryArr, categoryNameArr, scrapeBookText, scrapeBookImage } from './scrapeBook';
 
 import { config } from 'dotenv';
 import configFile from './config';
@@ -38,6 +38,7 @@ const slackWebHookUrl = process.env.SLACK_WEBHOOK_URL ? process.env.SLACK_WEBHOO
 const actionId:string = 'bookSelect';
 const errorMessage = "An error occurred";
 const unrecogErrorMessage = "I can't understand what you said!";
+const imageWordArr = ['이미지', '사진', '스크린샷', 'img', 'image', 'screenshot'];
 
 const slackInteractions = createMessageAdapter(signingToken);
 
@@ -50,25 +51,66 @@ http.createServer(app).listen(port, () => {
 
 slackInteractions.action(actionId, async (payload: IselectPayload, respond: any) => {
   const categoryResult: string = payload.actions[0].selected_options['0']['value'];
-  const categoryResultIdx: number = categoryNameArr.indexOf(categoryResult);
-  getScrapedBookInfo(channel, categoryArr[categoryResultIdx].url);
+  let categoryResultIdx: number;
+
+  if (categoryResult.includes('Img')) {
+    categoryResultIdx = categoryNameArr.indexOf(categoryResult.split('Img')[0].trim());
+  } else {
+    categoryResultIdx = categoryNameArr.indexOf(categoryResult);
+  }
+  
+  if (categoryResult.includes('Img')) {
+    await scrapeBookImage(categoryArr[categoryResultIdx].url).then(async (result) => {
+      if (!result) {
+        await rtm.sendMessage(`${errorMessage} during getting image!`, channel);
+        return ;
+      } else {
+        try {
+          const form = new FormData();
+          form.append('channels', channel);
+          form.append('token', apiToken);
+          form.append('filename', `hobby-info-image-${Date.now()}`);
+          form.append('filetype', 'image/png');
+          form.append('title', `hobby-info-image-${Date.now()}.png`);
+          form.append('initial_comment', Date.now());
+          form.append('file', result, {
+            contentType: 'text/plain',
+            filename: `hobby-info-image-${Date.now()}`,
+          });
+
+          fetch('https://slack.com/api/files.upload', {
+            method: 'POST',
+            body: form,
+            headers: Object.assign(form.getHeaders(), { 'Content-Type': 'multipart/form-data' }),
+          })
+          .then(res => res.text())
+          .then(body => {
+            console.log(body);
+          })
+          .catch(async (err) => {
+            await rtm.sendMessage(`${errorMessage} during getting image!`, channel);
+          });
+        } catch (err) {
+          console.log(err);
+        }
+      }
+    });
+  } else {
+    scrapeBookText(categoryArr[categoryResultIdx].url).then(async (bookInfo) => {
+      if (bookInfo) {
+        await rtm.sendMessage(bookInfo, channel);
+      } else {
+        await rtm.sendMessage(`${errorMessage} during getting book information!`, channel);
+        return ;
+      }
+    });
+  }
   await respond({
     text: `*${categoryArr[categoryResultIdx].v}* 카테고리 선택`,
     response_type: 'in_channel',
     replace_original: true
   });
 });
-
-function getScrapedBookInfo(channel: string, url: string) {
-  scrapeBookText(url).then(async (bookInfo) => {
-    if (bookInfo) {
-      await rtm.sendMessage(bookInfo, channel);
-    } else {
-      await rtm.sendMessage(`${errorMessage} during getting book information!`, channel);
-      return ;
-    }
-  });
-}
 
 const rtm = new RTMClient(token);
 
@@ -87,7 +129,6 @@ rtm.on('message', async (event) => {
     try {
       // await rtm.sendMessage(`Hello <@${event.user}>!`, channel);
       if (text.includes('!영화')) {
-        const imageWordArr = ['이미지', '사진', '스크린샷', 'img', 'image', 'screenshot'];
         if (imageWordArr.includes(text.split('!영화')[1].trim())) {
           // await scrapeMovieImage().then(async (result) => {
           //   if (result) {
@@ -99,7 +140,7 @@ rtm.on('message', async (event) => {
           // });
           await scrapeMovieImageWithoutAWS().then(async (result) => {
             if (!result) {
-              await rtm.sendMessage(`${errorMessage} during getting movie image!`, channel);
+              await rtm.sendMessage(`${errorMessage} during getting image!`, channel);
               return ;
             } else {
               try {
@@ -125,7 +166,7 @@ rtm.on('message', async (event) => {
                   console.log(body);
                 })
                 .catch(async (err) => {
-                  await rtm.sendMessage(`${errorMessage} during getting movie image!`, channel);
+                  await rtm.sendMessage(`${errorMessage} during getting image!`, channel);
                 });
               } catch (err) {
                 console.log(err);
@@ -143,7 +184,40 @@ rtm.on('message', async (event) => {
           });
         }
       } else if (text.includes('!책') || text.includes('!도서')) { // 책 1단계
-  
+        let bookOption = [
+          { "text": categoryArr[0].v, "value": categoryArr[0].name },
+          { "text": categoryArr[1].v, "value": categoryArr[1].name },
+          { "text": categoryArr[2].v, "value": categoryArr[2].name },
+          { "text": categoryArr[3].v, "value": categoryArr[3].name },
+          { "text": categoryArr[4].v, "value": categoryArr[4].name },
+          { "text": categoryArr[5].v, "value": categoryArr[5].name },
+          { "text": categoryArr[6].v, "value": categoryArr[6].name },
+          { "text": categoryArr[7].v, "value": categoryArr[7].name },
+          { "text": categoryArr[8].v, "value": categoryArr[8].name },
+          { "text": categoryArr[9].v, "value": categoryArr[9].name },
+        ];
+        let novelOption = [
+          { "text": categoryArr[10].v, "value": categoryArr[10].name },
+          { "text": categoryArr[11].v, "value": categoryArr[11].name },
+          { "text": categoryArr[12].v, "value": categoryArr[12].name },
+          { "text": categoryArr[13].v, "value": categoryArr[13].name },
+          { "text": categoryArr[14].v, "value": categoryArr[14].name },
+          { "text": categoryArr[15].v, "value": categoryArr[15].name },
+          { "text": categoryArr[16].v, "value": categoryArr[16].name },
+          { "text": categoryArr[17].v, "value": categoryArr[17].name },
+          { "text": categoryArr[18].v, "value": categoryArr[18].name },
+        ];
+
+        // 한 번 interactive message를 보내야 하기 때문에 value 변경 작업이 필요하다
+        if (imageWordArr.includes(text.split('!책')[1].trim())) {
+          bookOption.forEach((elem, idx) => {
+            bookOption[idx].value = elem.value + 'Img';
+          });
+
+          novelOption.forEach((elem, idx) => {
+            novelOption[idx].value = elem.value + 'Img';
+          });
+        }
         // const confirmObj = {
         //   "title": "Are you sure?",
         //   "text": "Wouldn\'t you prefer other category?",
@@ -166,32 +240,11 @@ rtm.on('message', async (event) => {
                   "option_groups": [
                     {
                       "text": "책",
-                      "options": [
-                        { "text": categoryArr[0].v, "value": categoryArr[0].name },
-                        { "text": categoryArr[1].v, "value": categoryArr[1].name },
-                        { "text": categoryArr[2].v, "value": categoryArr[2].name },
-                        { "text": categoryArr[3].v, "value": categoryArr[3].name },
-                        { "text": categoryArr[4].v, "value": categoryArr[4].name },
-                        { "text": categoryArr[5].v, "value": categoryArr[5].name },
-                        { "text": categoryArr[6].v, "value": categoryArr[6].name },
-                        { "text": categoryArr[7].v, "value": categoryArr[7].name },
-                        { "text": categoryArr[8].v, "value": categoryArr[8].name },
-                        { "text": categoryArr[9].v, "value": categoryArr[9].name },
-                      ]
+                      "options": bookOption
                     },
                     {
                       "text": "소설",
-                      "options": [
-                        { "text": categoryArr[10].v, "value": categoryArr[10].name },
-                        { "text": categoryArr[11].v, "value": categoryArr[11].name },
-                        { "text": categoryArr[12].v, "value": categoryArr[12].name },
-                        { "text": categoryArr[13].v, "value": categoryArr[13].name },
-                        { "text": categoryArr[14].v, "value": categoryArr[14].name },
-                        { "text": categoryArr[15].v, "value": categoryArr[15].name },
-                        { "text": categoryArr[16].v, "value": categoryArr[16].name },
-                        { "text": categoryArr[17].v, "value": categoryArr[17].name },
-                        { "text": categoryArr[18].v, "value": categoryArr[18].name },
-                      ]
+                      "options": novelOption
                     }
                   ]
                 }
