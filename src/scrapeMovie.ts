@@ -156,4 +156,35 @@ const scrapeMovieImage = async () => {
   return result;
 };
 
-export { scrapeMovieText, scrapeMovieImage };
+const scrapeMovieImageWithoutAWS = async () => {
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  await page.goto('https://movie.naver.com/movie/running/current.nhn#', { waitUntil: 'networkidle2' });
+  await page.setViewport({
+    width: 1280,
+    height: 1430,
+  });
+
+  const main = await page.$('#content');
+  const mainResult = await main!.boundingBox();
+
+  if (mainResult) {
+    const screenshot: string = await page.screenshot({
+      encoding: "base64",
+      type: 'png',
+      clip: {
+        x: mainResult.x,
+        y: mainResult.y,
+        width: Math.min(mainResult.width, page.viewport().width),
+        height: Math.min(mainResult.height, page.viewport().height),
+      }, 
+    }) as string;
+    await browser.close();
+    
+    const buffer: Buffer = Buffer.from(screenshot, "base64");
+    return buffer;
+  } 
+  return false;
+};
+
+export { scrapeMovieText, scrapeMovieImage, scrapeMovieImageWithoutAWS };
