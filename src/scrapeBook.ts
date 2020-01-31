@@ -1,5 +1,5 @@
 import { fetch } from 'cheerio-httpcli';
-import * as puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer';
 
 export const categoryArr = [
   {
@@ -116,7 +116,6 @@ const scrapeBookText = async (url: string) => {
 
         try {
           bookTitle = $(elem).find('div.goods_name a:nth-of-type(1)').text();
-
           if (bookTitle) {
             result.push({
               title: bookTitle,

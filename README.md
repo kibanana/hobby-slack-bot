@@ -30,7 +30,7 @@ npm i
 
 ## Usage
 ```sh
-# After create config.ts
+# After create config.ts or .env
 
 npm start
 # npm run start

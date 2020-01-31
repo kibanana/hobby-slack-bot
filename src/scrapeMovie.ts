@@ -1,6 +1,6 @@
 import { fetch } from 'cheerio-httpcli';
-import * as puppeteer from 'puppeteer';
-import * as AWS from 'aws-sdk';
+import puppeteer from 'puppeteer';
+import AWS from 'aws-sdk';
 
 import configFile from './config';
 import { config } from 'dotenv';
