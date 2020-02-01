@@ -6,8 +6,9 @@ import FormData from 'form-data';
 import http from 'http';
 import express from 'express';
 
-import { scrapeMovieText, scrapeMovieImage, scrapeMovieImageWithoutAWS } from './scrapeMovie';
-import { categoryArr, categoryNameArr, scrapeBookText, scrapeBookImage } from './scrapeBook';
+import { scrapeMovieText } from './scrapeMovie';
+import { categoryArr, categoryNameArr, scrapeBookText } from './scrapeBook';
+import { getScreenshot, scrapeMovieImageWithAWS } from './getScreenshot';
 
 import { config } from 'dotenv';
 import configFile from './config';
@@ -23,7 +24,7 @@ const slackWebHookUrl = process.env.SLACK_WEBHOOK_URL ? process.env.SLACK_WEBHOO
 const actionId: string = 'bookSelect';
 const errorMessage: string = "An error occurred";
 const unrecogErrorMessage: string = "I can't understand what you said!";
-const imageWordArr: string[] = ['이미지', '사진', '스크린샷', 'img', 'image', 'screenshot'];
+const imageWordArr: string[] = ['이미지', '사진', '스크린샷', 'img', 'image', 'picture', 'screenshot'];
 
 const slackInteractions = createMessageAdapter(signingToken);
 
@@ -57,7 +58,7 @@ slackInteractions.action(actionId, async (payload: IselectPayload, respond: any)
   if (categoryResult.includes('Img')) {
     categoryResultIdx = categoryNameArr.indexOf(categoryResult.split('Img')[0].trim());
     try {
-      await scrapeBookImage(categoryArr[categoryResultIdx].url).then(async (result) => {
+      await getScreenshot(categoryArr[categoryResultIdx].url).then(async (result) => {
         if (result) {
           sendImage(result);
         } else {
@@ -108,7 +109,9 @@ rtm.on('message', async (event) => {
       // await rtm.sendMessage(`Hello <@${event.user}>!`, channel);
       if (text.includes('!영화')) {
         if (imageWordArr.includes(text.split('!영화')[1].trim())) {
-          // await scrapeMovieImage().then(async (result) => {
+          const MOVIE_URL = 'https://movie.naver.com/movie/running/current.nhn#';
+
+          // await scrapeMovieImageWithAWS(MOVIE_URL).then(async (result) => {
           //   if (result) {
           //     await rtm.sendMessage(`<${result}|Movie Image>`, channel);
           //   } else {
@@ -117,7 +120,7 @@ rtm.on('message', async (event) => {
           //   }
           // });
           try {
-            await scrapeMovieImageWithoutAWS().then(async (result) => {
+            await getScreenshot(MOVIE_URL).then(async (result) => {
               if (result) {
                 sendImage(result);
               } else {
