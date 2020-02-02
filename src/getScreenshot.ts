@@ -30,9 +30,28 @@ const getScreenshot = async (URL: string) => {
     mainId = '#content';
   }
 
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({
+    headless: true,
+    ignoreHTTPSErrors: true,
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--single-process',
+      '--enable-features=NetworkService'
+    ],
+  });
+  
   const page = await browser.newPage();
-  await page.goto(URL, { waitUntil: 'networkidle2' });
+  await page.setRequestInterception(true);
+  page.on('request', interceptedRequest => {
+    interceptedRequest.continue()
+  })
+  
+  // 0으로 하면 아무 에러도 안나서 더 불편함
+  page.setDefaultNavigationTimeout(100000);
+
+  await page.goto(URL, { waitUntil: 'load' });
   await page.setViewport({
     width: 1280,
     height: viewportHeight,

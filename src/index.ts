@@ -23,12 +23,17 @@ const channel: string = process.env.CHANNEL ? process.env.CHANNEL : configFile.C
 const slackWebHookUrl = process.env.SLACK_WEBHOOK_URL ? process.env.SLACK_WEBHOOK_URL : configFile.SLACK_WEBHOOK_URL;
 const actionId: string = 'bookSelect';
 const errorMessage: string = "An error occurred";
-const unrecogErrorMessage: string = "I can't understand what you said!";
+const bookInteractiveMessage: string = "어떤 *책* 의 순위를 보고 싶으신가요?";
+const bookPlainInteractiveMessage: string = "어떤 책 의 순위를 보고 싶으신가요?";
 const imageWordArr: string[] = ['이미지', '사진', '스크린샷', 'img', 'image', 'picture', 'screenshot'];
 
 const slackInteractions = createMessageAdapter(signingToken);
 
 const app = express();
+
+app.get('*', (req, res) => {
+
+})
 
 app.post('/slack/actions', slackInteractions.expressMiddleware());
 http.createServer(app).listen(port, () => {
@@ -100,134 +105,139 @@ const rtm = new RTMClient(token);
   await rtm.start();
 })();
 
-rtm.on('message', async (event) => {
-  const text: string = event.text;
-
-  // Bot에서 보낸 메시지도 event로 취급돼서 무한루프가 돌길래 if문으로 체크
-  if (!((!text.trim()) || text.includes(errorMessage) || text.includes(unrecogErrorMessage) || text.includes('Hello'))) {
-    try {
-      // await rtm.sendMessage(`Hello <@${event.user}>!`, channel);
-      if (text.includes('!영화')) {
-        if (imageWordArr.includes(text.split('!영화')[1].trim())) {
-          const MOVIE_URL = 'https://movie.naver.com/movie/running/current.nhn#';
-
-          // await scrapeMovieImageWithAWS(MOVIE_URL).then(async (result) => {
-          //   if (result) {
-          //     await rtm.sendMessage(`<${result}|Movie Image>`, channel);
-          //   } else {
-          //     await rtm.sendMessage(`${errorMessage} during getting movie image!`, channel);
-          //     return ;
-          //   }
-          // });
-          try {
-            await getScreenshot(MOVIE_URL).then(async (result) => {
-              if (result) {
-                sendImage(result);
-              } else {
-                throw new Error();
-              }
-            });
-          } catch (err) {
-            await rtm.sendMessage(`${errorMessage} during getting movie image!`, channel);
-          }
-        } else { // text가 default
-          try {
-            scrapeMovieText().then(async (movieInfo) => {
-              if (movieInfo) {
-                await rtm.sendMessage(movieInfo, channel);
-              } else {
-                throw new Error();
-              }
-            });
-          } catch (err) {
-            await rtm.sendMessage(`${errorMessage} during getting movie information!`, channel);
-          }
-        }
-      } else if (text.includes('!책') || text.includes('!도서')) { // 책 1단계
-        let bookOption = [
-          { "text": categoryArr[0].v, "value": categoryArr[0].name },
-          { "text": categoryArr[1].v, "value": categoryArr[1].name },
-          { "text": categoryArr[2].v, "value": categoryArr[2].name },
-          { "text": categoryArr[3].v, "value": categoryArr[3].name },
-          { "text": categoryArr[4].v, "value": categoryArr[4].name },
-          { "text": categoryArr[5].v, "value": categoryArr[5].name },
-          { "text": categoryArr[6].v, "value": categoryArr[6].name },
-          { "text": categoryArr[7].v, "value": categoryArr[7].name },
-          { "text": categoryArr[8].v, "value": categoryArr[8].name },
-          { "text": categoryArr[9].v, "value": categoryArr[9].name },
-        ];
-        let novelOption = [
-          { "text": categoryArr[10].v, "value": categoryArr[10].name },
-          { "text": categoryArr[11].v, "value": categoryArr[11].name },
-          { "text": categoryArr[12].v, "value": categoryArr[12].name },
-          { "text": categoryArr[13].v, "value": categoryArr[13].name },
-          { "text": categoryArr[14].v, "value": categoryArr[14].name },
-          { "text": categoryArr[15].v, "value": categoryArr[15].name },
-          { "text": categoryArr[16].v, "value": categoryArr[16].name },
-          { "text": categoryArr[17].v, "value": categoryArr[17].name },
-          { "text": categoryArr[18].v, "value": categoryArr[18].name },
-        ];
-
-        // interactive message를 보내야 하기 때문에 value 변경 작업이 필요
-        if (imageWordArr.includes(text.split('!책')[1].trim())) {
-          bookOption.forEach((elem, idx) => {
-            bookOption[idx].value = elem.value + 'Img';
-          });
-
-          novelOption.forEach((elem, idx) => {
-            novelOption[idx].value = elem.value + 'Img';
-          });
-        }
-        const selectCategory = {
-          "type": "interactive_message",
-          // "thread_ts": event.ts, // 사용성 저하
-          "attachments": [
-            {
-              "text": "어떤 *책* 의 순위를 보고 싶으신가요?",
-              "mrkdwn_in": ["text"],
-              "callback_id": actionId,
-              "fallback": actionId + "Fail",
-              "actions": [
-                {
-                  "name": actionId,
-                  "type": "select",
-                  "option_groups": [
-                    {
-                      "text": "책",
-                      "options": bookOption
-                    },
-                    {
-                      "text": "소설",
-                      "options": novelOption
-                    }
-                  ]
+try {
+  rtm.on('message', async (event) => {
+    const text: string = event.text || '';
+  
+    // Bot에서 보낸 메시지도 event로 취급돼서 무한루프가 돌길래 if문으로 체크
+    if (!((!text.trim()) || text.includes(errorMessage)) || text.includes(bookInteractiveMessage) || text.includes(bookPlainInteractiveMessage)) {
+      try {
+        //  || text.includes('Hello')
+        // await rtm.sendMessage(`Hello <@${event.user}>!`, event.channel);
+        if (text.includes('!영화')) {
+          if (imageWordArr.includes(text.split('!영화')[1].trim())) {
+            const MOVIE_URL = 'https://movie.naver.com/movie/running/current.nhn#';
+  
+            // await scrapeMovieImageWithAWS(MOVIE_URL).then(async (result) => {
+            //   if (result) {
+            //     await rtm.sendMessage(`<${result}|Movie Image>`, event.channel);
+            //   } else {
+            //     await rtm.sendMessage(`${errorMessage} during getting movie image!`, event.channel);
+            //     return ;
+            //   }
+            // });
+            try {
+              await getScreenshot(MOVIE_URL).then(async (result) => {
+                if (result) {
+                  sendImage(result);
+                } else {
+                  throw new Error();
                 }
-              ]
+              });
+            } catch (err) {
+              await rtm.sendMessage(`${errorMessage} during getting movie image!`, event.channel);
             }
-          ],
-        };
-
-        fetch(slackWebHookUrl, {
-          method: 'POST',
-          body: JSON.stringify(selectCategory),
-          headers: { 'Content-Type': 'application/json' },
-        })
-        .then(res => {
-          if (!res.ok) {
-            throw new Error();
+          } else { // text가 default
+            try {
+              scrapeMovieText().then(async (movieInfo) => {
+                if (movieInfo) {
+                  await rtm.sendMessage(movieInfo, event.channel);
+                } else {
+                  throw new Error();
+                }
+              });
+            } catch (err) {
+              await rtm.sendMessage(`${errorMessage} during getting movie information!`, event.channel);
+            }
           }
-        })
-        .catch(async (err) => {
-          new Error();
-        });
+        } else if (text.includes('!책') || text.includes('!도서')) { // 책 1단계
+          let bookOption = [
+            { "text": categoryArr[0].v, "value": categoryArr[0].name },
+            { "text": categoryArr[1].v, "value": categoryArr[1].name },
+            { "text": categoryArr[2].v, "value": categoryArr[2].name },
+            { "text": categoryArr[3].v, "value": categoryArr[3].name },
+            { "text": categoryArr[4].v, "value": categoryArr[4].name },
+            { "text": categoryArr[5].v, "value": categoryArr[5].name },
+            { "text": categoryArr[6].v, "value": categoryArr[6].name },
+            { "text": categoryArr[7].v, "value": categoryArr[7].name },
+            { "text": categoryArr[8].v, "value": categoryArr[8].name },
+            { "text": categoryArr[9].v, "value": categoryArr[9].name },
+          ];
+          let novelOption = [
+            { "text": categoryArr[10].v, "value": categoryArr[10].name },
+            { "text": categoryArr[11].v, "value": categoryArr[11].name },
+            { "text": categoryArr[12].v, "value": categoryArr[12].name },
+            { "text": categoryArr[13].v, "value": categoryArr[13].name },
+            { "text": categoryArr[14].v, "value": categoryArr[14].name },
+            { "text": categoryArr[15].v, "value": categoryArr[15].name },
+            { "text": categoryArr[16].v, "value": categoryArr[16].name },
+            { "text": categoryArr[17].v, "value": categoryArr[17].name },
+            { "text": categoryArr[18].v, "value": categoryArr[18].name },
+          ];
+  
+          // interactive message를 보내야 하기 때문에 value 변경 작업이 필요
+          if (imageWordArr.includes(text.split('!책')[1].trim())) {
+            bookOption.forEach((elem, idx) => {
+              bookOption[idx].value = elem.value + 'Img';
+            });
+  
+            novelOption.forEach((elem, idx) => {
+              novelOption[idx].value = elem.value + 'Img';
+            });
+          }
+          const selectCategory = {
+            "type": "interactive_message",
+            // "thread_ts": event.ts, // 사용성 저하
+            "attachments": [
+              {
+                "text": bookInteractiveMessage,
+                "mrkdwn_in": ["text"],
+                "callback_id": actionId,
+                "fallback": actionId + "Fail",
+                "actions": [
+                  {
+                    "name": actionId,
+                    "type": "select",
+                    "option_groups": [
+                      {
+                        "text": "책",
+                        "options": bookOption
+                      },
+                      {
+                        "text": "소설",
+                        "options": novelOption
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+          };
+  
+          fetch(slackWebHookUrl, {
+            method: 'POST',
+            body: JSON.stringify(selectCategory),
+            headers: { 'Content-Type': 'application/json' },
+          })
+          .then(res => {
+            if (!res.ok) {
+              throw new Error();
+            }
+          })
+          .catch(async (err) => {
+            new Error();
+          });
+        }
+      } catch (err) {
+        await rtm.sendMessage(errorMessage, event.channel);
       }
-    } catch (err) {
-      await rtm.sendMessage(errorMessage, channel);
+    } else {
+      return ;
     }
-  } else {
-    await rtm.sendMessage(unrecogErrorMessage, channel);
-  }
-});
+  });
+} catch (allErr) {
+
+}
 
 async function sendImage (result: Buffer) : Promise<void> {
   try {
