@@ -104,6 +104,7 @@ export const categoryUrlArr = categoryArr.map((item) => item.url);
 const scrapeBookText = async (url: string) => {
   let result: object[] = [];
   let bookTitle: string;
+  let bookAuthor: string[] = [];
 
   await fetch(url)
     .then((res) => {
@@ -113,13 +114,19 @@ const scrapeBookText = async (url: string) => {
         if (i >= 5) {
           return '';
         }
+        
+        bookAuthor = [];
 
         try {
           bookTitle = $(elem).find('div.goods_name a:nth-of-type(1)').text();
           if (bookTitle) {
+            $(elem).find('div.goods_pubGrp span.goods_auth a').each((x, xElem) => {
+              bookAuthor.push($(xElem).text());
+            });
+            
             result.push({
               title: bookTitle,
-              author: $(elem).find('div.goods_pubGrp span.goods_auth a').text(),
+              author: bookAuthor,
               publish: $(elem).find('div.goods_pubGrp span.goods_pub').text(),
               price: $(elem).find('div.goods_price em:nth-of-type(1)').text(),
               summary: $(elem).find('div.goods_read').text(),

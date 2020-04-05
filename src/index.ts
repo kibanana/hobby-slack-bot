@@ -225,7 +225,7 @@ try {
             }
           })
           .catch(async (err) => {
-            new Error();
+            throw new Error(err);
           });
         }
       } catch (err) {
@@ -264,7 +264,7 @@ async function sendImage (result: Buffer) : Promise<void> {
       }
     })
     .catch(async (err) => {
-      throw new Error();
+      throw new Error(err);
     });
   } catch (err) {
     await rtm.sendMessage(`${errorMessage} during getting image!`, channel);

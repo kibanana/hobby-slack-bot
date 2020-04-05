@@ -43,14 +43,12 @@ const getScreenshot = async (URL: string) => {
   });
   
   const page = await browser.newPage();
-  await page.setRequestInterception(true);
-  page.on('request', interceptedRequest => {
-    interceptedRequest.continue()
-  })
+  await page.waitForNavigation({waitUntil: 'domcontentloaded'})
   
   // 0으로 하면 아무 에러도 안나서 더 불편함
   page.setDefaultNavigationTimeout(100000);
 
+  // 'domcontentloaded'
   await page.goto(URL, { waitUntil: 'load' });
   await page.setViewport({
     width: 1280,
@@ -83,7 +81,7 @@ const scrapeMovieImageWithAWS = async (URL: string) => {
   let result = '';
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
-  await page.goto(URL, { waitUntil: 'networkidle2' });
+  await page.goto(URL, { waitUntil: 'domcontentloaded', timeout: 0, });
   await page.setViewport({
     width: 1280,
     height: 1430,
