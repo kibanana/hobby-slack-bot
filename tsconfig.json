@@ -3,22 +3,16 @@
 		"module": "commonjs",
 		"target": "es6",
 		"outDir": "dist",
+		"rootDir": "src",
 		"lib": [
       "dom",
       "es5",
       "scripthost",
       "es2015.promise"
 		],
-    "baseUrl": ".",
 		"sourceMap": true,
-		"rootDir": "src",
     "strict": true,
     "esModuleInterop": true
   },
-  "include": [
-    "src/**/*"
-  ],
-	"exclude": [
-		"node_modules",
-	]
+	"exclude": ["node_modules"]
 }

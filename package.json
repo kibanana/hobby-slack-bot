@@ -1,29 +1,28 @@
 {
-  "name": "hobby-info-slack-bot",
+  "name": "hobby-slack-bot",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "preinstall": "npm i -g typescript",
-    "postinstall": "npm run build",
     "build": "tsc",
-    "start": "node dist/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "prestart": "npm run build",
+    "start": "node dist/index.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kyw017763/hobby-info-slack-bot.git"
+    "url": "https://github.com/woni-d/hobby-slack-bot.git"
   },
   "author": "Woni",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/kyw017763/hobby-info-slack-bot/issues"
+    "url": "https://github.com/woni-d/hobby-slack-bot/issues"
   },
-  "homepage": "https://github.com/kyw017763/hobby-info-slack-bot#readme",
+  "homepage": "https://github.com/woni-d/hobby-slack-bot#readme",
   "dependencies": {
     "@slack/interactive-messages": "^1.4.1",
     "@slack/rtm-api": "^5.0.3",
-    "@types/node": "^13.5.3",
+    "@types/node": "^14.14.27",
     "@types/node-fetch": "^2.5.4",
     "@types/puppeteer": "^2.0.0",
     "aws-sdk": "^2.603.0",
@@ -33,9 +32,7 @@
     "form-data": "^3.0.0",
     "http": "0.0.0",
     "node-fetch": "^2.6.0",
-    "puppeteer": "^2.0.0",
-    "ts-node": "^8.6.2",
-    "typescript": "^3.7.5"
+    "puppeteer": "^2.0.0"
   },
   "devDependencies": {}
 }
