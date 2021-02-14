@@ -1,4 +1,5 @@
-import { fetch } from 'cheerio-httpcli';
+import fetch, { Response } from 'node-fetch';
+import cheerio from 'cheerio';
 
 export default async (): Promise<string> => {
   try {
@@ -9,8 +10,8 @@ export default async (): Promise<string> => {
     let tempActors: string[] = [];
   
     const MOVIE_URL = 'https://movie.naver.com';
-    const res: any = await fetch(`${MOVIE_URL}/movie/running/current.nhn`);
-    const $ = res.$;
+    const res: Response = await fetch(`${MOVIE_URL}/movie/running/current.nhn`);
+    const $: cheerio.Root = cheerio.load(await res.text());
   
     $('div.lst_wrap ul li').each((idx: number, elem: any) => {
       // always reult.length === 7

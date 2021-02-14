@@ -1,4 +1,5 @@
-import { fetch } from 'cheerio-httpcli';
+import fetch, { Response } from 'node-fetch';
+import cheerio from 'cheerio';
 
 export default async (url: string): Promise<string> => {
   try {
@@ -6,8 +7,9 @@ export default async (url: string): Promise<string> => {
     let bookTitle: string;
     let bookAuthor: string[] = [];
 
-    const res: any = await fetch(url);
-    const $ = res.$;
+    const res: Response = await fetch(url);
+    const $: cheerio.Root = cheerio.load(await res.text());
+
     $('div#category_layout ul li div.goods_info').each((i: number, elem: any) => {
       // always reult.length === 5
       if (i >= 5) {
