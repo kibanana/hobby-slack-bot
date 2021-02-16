@@ -140,7 +140,15 @@ rtmClient.on('message', async (event: { text: string; channel: string }) => {
       // interactive message를 보내야 하기 때문에 value 변경 작업이 필요
       const copiedBookOptions = CONSTANT.BOOK_OPTIONS;
       const copiedNovelOptions = CONSTANT.NOVEL_OPTIONS;
-      if (CONSTANT.IMAGE_WORDS.includes(text.split('!책' || '!도서')[1].trim())) {
+
+      let word: string = '';
+      if (text.includes('!책')) {
+        word = text.split('!책')[1].trim();
+      } else if (text.includes('!도서')) {
+        word = text.split('!도서')[1].trim();
+      }
+ 
+      if (CONSTANT.IMAGE_WORDS.includes(word)) {
         CONSTANT.BOOK_OPTIONS.forEach((elem, idx) => { copiedBookOptions[idx].value = `${elem.value}Img`; });
         CONSTANT.NOVEL_OPTIONS.forEach((elem, idx) => { copiedNovelOptions[idx].value = `${elem.value}Img`; });
       }
