@@ -20,22 +20,23 @@ export default async (URL: string): Promise<Buffer | null> => {
       id = '#content';
     }
   
-    const browser = await puppeteer.launch({
-      headless: true,
-      ignoreHTTPSErrors: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--single-process',
-        '--enable-features=NetworkService'
-      ],
-    });
+    const browser = await puppeteer.launch(
+      // {
+      //   headless: true,
+      //   ignoreHTTPSErrors: true,
+      //   args: [
+      //     '--no-sandbox',
+      //     '--disable-setuid-sandbox',
+      //     '--disable-dev-shm-usage',
+      //     '--single-process',
+      //     '--enable-features=NetworkService'
+      //   ]
+      // }
+    );
     
     const page = await browser.newPage();
     page.setDefaultNavigationTimeout(100000); // 0으로 하면 아무 에러도 안나서 더 불편함
-    await page.waitForNavigation({ waitUntil: 'domcontentloaded' })
-    await page.goto(URL, { waitUntil: 'load' });
+    await page.goto(URL, { waitUntil: 'networkidle2' });
     await page.setViewport({ width: 1280, height: viewportHeight });
   
     const main = await page.$(id);

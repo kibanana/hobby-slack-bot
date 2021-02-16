@@ -25,18 +25,18 @@ export default async (): Promise<string> => {
         tempDirectors = [];
         tempActors = [];
   
-        $(elem).find('dd dl.info_txt1 dd:first-of-type span.link_txt a').each((i: number) => {
-          tempGenres.push($(i).text());
+        $(elem).find('dd dl.info_txt1 dd:first-of-type span.link_txt a').each((i: number, elem: any) => {
+          tempGenres.push($(elem).text());
         });
   
-        $(elem).find('dd dl.info_txt1 dd:nth-of-type(2) span.link_txt a').each((i: number) => {
-          tempDirectors.push($(i).text());
+        $(elem).find('dd dl.info_txt1 dd:nth-of-type(2) span.link_txt a').each((i: number, elem: any) => {
+          tempDirectors.push($(elem).text());
         });
   
-        $(elem).find('dd dl.info_txt1 dd:last-child span.link_txt a').each((i: number) => {
-          tempActors.push($(i).text());
+        $(elem).find('dd dl.info_txt1 dd:last-child span.link_txt a').each((i: number, elem: any) => {
+          tempActors.push($(elem).text());
         });
-  
+
         movies.push({
           title: tempTitle,
           rating: $(elem).find('span.num:nth-of-type(2)').text(),

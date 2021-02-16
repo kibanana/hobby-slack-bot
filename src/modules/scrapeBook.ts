@@ -19,7 +19,7 @@ export default async (url: string): Promise<string> => {
       bookAuthor = [];
       bookTitle = $(elem).find('div.goods_name a:nth-of-type(1)').text();
       if (bookTitle) {
-        $(elem).find('div.goods_pubGrp span.goods_auth a').each((x: number, e: any) => {
+        $(elem).find('div.goods_pubGrp span.goods_auth a').each((_: number, e: any) => {
           bookAuthor.push($(e).text());
         });
         
