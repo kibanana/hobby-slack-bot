@@ -45,7 +45,7 @@ export default async (URL: string): Promise<Buffer | null> => {
       return null;
     }
   
-    const screenshot: string = await page.screenshot({
+    const screenshot = await page.screenshot({
       encoding: 'base64',
       type: 'png',
       clip: {

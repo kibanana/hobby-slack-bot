@@ -1,4 +1,4 @@
-export default interface ISelectPayload {
+export default interface IPayload {
   type: string,
   actions: [
     {

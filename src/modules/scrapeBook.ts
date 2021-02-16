@@ -1,16 +1,16 @@
 import fetch, { Response } from 'node-fetch';
 import cheerio from 'cheerio';
 import iconv from 'iconv-lite';
+import IBook from '../ts/IBook';
 
 export default async (url: string): Promise<string> => {
   try {
-    let result: object[] = [];
+    const books: IBook[] = [];
     let bookTitle: string;
-    let bookAuthor: string[] = [];
+    let bookAuthors: string[] = [];
 
-    const res: Response = await fetch(url);
-    
-    const $: cheerio.Root = cheerio.load(iconv.decode((await res.buffer()), 'EUC-KR').toString());
+    const res = await fetch(url);
+    const $ = cheerio.load(iconv.decode((await res.buffer()), 'EUC-KR').toString());
 
     $('div#category_layout ul li div.goods_info').each((i: number, elem: any) => {
       // always reult.length === 5
@@ -18,16 +18,16 @@ export default async (url: string): Promise<string> => {
         return '';
       }
       
-      bookAuthor = [];
+      bookAuthors = [];
       bookTitle = $(elem).find('div.goods_name a:nth-of-type(1)').text();
       if (bookTitle) {
         $(elem).find('div.goods_pubGrp span.goods_auth a').each((_: number, e: any) => {
-          bookAuthor.push($(e).text());
+          bookAuthors.push($(e).text());
         });
         
-        result.push({
+        books.push({
           title: bookTitle,
-          author: bookAuthor,
+          author: bookAuthors,
           publish: $(elem).find('div.goods_pubGrp span.goods_pub').text(),
           price: $(elem).find('div.goods_price em:nth-of-type(1)').text(),
           summary: $(elem).find('div.goods_read').text(),
@@ -36,27 +36,27 @@ export default async (url: string): Promise<string> => {
       }
     });
 
-    if (result.length !== 5) {
+    if (books.length !== 5) {
       return '';
     }
     
-    let resultStr: string = '';
-    result.forEach((obj: any, idx: number) => {
+    let result: string = '';
+    books.forEach((book: IBook, idx: number) => {
       switch(idx + 1) {
-        case 1: resultStr += `1️⃣`; break;
-        case 2: resultStr += `2️⃣`; break;
-        case 3: resultStr += `3️⃣`; break;
-        case 4: resultStr += `4️⃣`; break;
-        case 5: resultStr += `5️⃣`; break;
+        case 1: result += `1️⃣`; break;
+        case 2: result += `2️⃣`; break;
+        case 3: result += `3️⃣`; break;
+        case 4: result += `4️⃣`; break;
+        case 5: result += `5️⃣`; break;
       }
       
-      resultStr += ` <${obj['link']}|*${obj['title']}*> : ${obj['price']}원` + "\n";
-      resultStr += `✒️ written by ${obj['author']}` + "\n";
-      resultStr += `🏢 published by ${obj['publish']}` + "\n";
-      resultStr += `${obj['summary'].trim()}` + "\n";
+      result += ` <${book.link}|*${book.title}*> : ${book.price}원` + "\n";
+      result += `✒️ written by ${book.author}` + "\n";
+      result += `🏢 published by ${book.publish}` + "\n";
+      result += `${(book.summary || '').trim()}` + "\n";
     });
 
-    return resultStr;
+    return result;
   } catch (err) {
     console.log(err);
     return '';

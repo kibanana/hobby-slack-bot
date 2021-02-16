@@ -1,17 +1,18 @@
 import fetch, { Response } from 'node-fetch';
 import cheerio from 'cheerio';
+import IMovie from '../ts/IMovie';
 
 export default async (): Promise<string> => {
   try {
-    let movies: object[] = [];
+    const movies: IMovie[] = [];
     let tempTitle: string = '';
     let tempGenres: string[] = [];
     let tempDirectors: string[] = [];
     let tempActors: string[] = [];
   
     const MOVIE_URL = 'https://movie.naver.com';
-    const res: Response = await fetch(`${MOVIE_URL}/movie/running/current.nhn`);
-    const $: cheerio.Root = cheerio.load(await res.text());
+    const res = await fetch(`${MOVIE_URL}/movie/running/current.nhn`);
+    const $ = cheerio.load(await res.text());
   
     $('div.lst_wrap ul li').each((idx: number, elem: any) => {
       // always reult.length === 7
@@ -56,7 +57,7 @@ export default async (): Promise<string> => {
     }
   
     let result: string = '';
-    movies.forEach((obj: any, idx: number) => {
+    movies.forEach((movie: IMovie, idx: number) => {
       switch(idx + 1) {
         case 1: result += `1️⃣`; break;
         case 2: result += `2️⃣`; break;
@@ -67,16 +68,16 @@ export default async (): Promise<string> => {
         case 7: result += `7️⃣`; break;
       }
   
-      result += ` <${obj['link']}|*${obj['title']}*> ⭐️${obj['rating']}(${obj['ratingPerson']})` + "\n";
-      result += `📊 예매율 ${obj['ticketRate']}% \n`;
-      if (obj['genre'].length) {
-        result += `✨ 장르`+ "\n" + `${obj['genre']} \n`;
+      result += ` <${movie.link}|*${movie.title}*> ⭐️${movie.rating}(${movie.ratingPerson})` + "\n";
+      result += `📊 예매율 ${movie.ticketRate}% \n`;
+      if (movie.genre.length) {
+        result += `✨ 장르`+ "\n" + `${movie.genre} \n`;
       }
-      result += `🤷‍♀감독🤷‍♂` + "\n" + `${obj['director']} \n`;
-      if (obj['actors']) {
-        result += `🙆‍♂ 배우 🙆`+ "\n" + `${obj['actors']} \n`;
+      result += `🤷‍♀감독🤷‍♂` + "\n" + `${movie.director} \n`;
+      if (movie.actors) {
+        result += `🙆‍♂ 배우 🙆`+ "\n" + `${movie.actors} \n`;
       }
-      result += `<${obj['poster']}|${obj['title']} 포스터> \n`;
+      result += `<${movie.poster}|${movie.title} 포스터> \n`;
     });
     return result;
   } catch (err) {

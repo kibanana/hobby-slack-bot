@@ -13,7 +13,7 @@ import getScreenshot from './modules/getScreenshot';
 import sendImage from './modules/sendImage';
 import CONSTANT from './modules/constants';
 import MESSAGE from './modules/messages';
-import ISelectPayload from './ts/ISelectPayload';
+import IPayload from './ts/IPayload';
 import * as dotenv from 'dotenv';
 dotenv.config();
 const { PORT, SLACK_WEBHOOK_URL } = process.env;
@@ -32,21 +32,21 @@ http.createServer(app).listen(PORT, () => {
 
 let channel: string | null = null;
 
-slackInteractions.action(CONSTANT.ACTION_ID, async (payload: ISelectPayload, respond: Respond) => {
+slackInteractions.action(CONSTANT.ACTION_ID, async (payload: IPayload, respond: Respond) => {
   try {
-    const categoryOption: string = payload.actions[0].selected_options['0']['value'];
+    const categoryOption = payload.actions[0].selected_options['0']['value'];
     let categoryOptionIdx: number = 0;
 
     if (categoryOption.includes('Img')) {
       try {
         categoryOptionIdx = CONSTANT.CATEGORY_NAMES.indexOf(categoryOption.split('Img')[0].trim());
 
-        respond({
+        await respond({
           text: `*${CONSTANT.CATEGORYS[categoryOptionIdx].v}* 카테고리 선택`,
           response_type: 'in_channel'
         });
     
-        const getScreenshotResult: Buffer | null = await getScreenshot(CONSTANT.CATEGORY_URLS[categoryOptionIdx]);
+        const getScreenshotResult = await getScreenshot(CONSTANT.CATEGORY_URLS[categoryOptionIdx]);
         if (!getScreenshotResult) {
           logger.log(logTypes.ERROR_GET_SCREENSHOT);
         }
@@ -69,7 +69,7 @@ slackInteractions.action(CONSTANT.ACTION_ID, async (payload: ISelectPayload, res
           response_type: 'in_channel'
         });
     
-        const scrapeBookResult: string = await scrapeBook(CONSTANT.CATEGORY_URLS[categoryOptionIdx]);
+        const scrapeBookResult = await scrapeBook(CONSTANT.CATEGORY_URLS[categoryOptionIdx]);
         if (!scrapeBookResult) {
           logger.log(logTypes.ERROR_GET_BOOK);
         }
@@ -95,7 +95,8 @@ slackInteractions.action(CONSTANT.ACTION_ID, async (payload: ISelectPayload, res
 rtmClient.on('message', async (event: { text: string; channel: string }) => {
   try {
     channel = event.channel;
-    const text: string = event.text || '';
+
+    const { text } = event;
     if ((!text.trim()) || text.includes(MESSAGE.ERROR_MESSAGE) || text.includes(MESSAGE.BOOK_MARKDOWN_INTERACTIVE_MESSAGE) || text.includes(MESSAGE.BOOK_PLAIN_INTERACTIVE_MESSAGE)) {
       logger.log(logTypes.ERROR_BOT_MESSAGE);
     }
@@ -115,7 +116,7 @@ rtmClient.on('message', async (event: { text: string; channel: string }) => {
         // });
 
         try {
-          const getScreenshotResult: Buffer | null = await getScreenshot(MOVIE_URL);
+          const getScreenshotResult = await getScreenshot(MOVIE_URL);
           if (!getScreenshotResult) {
             logger.log(logTypes.ERROR_GET_SCREENSHOT);
           }
@@ -126,7 +127,7 @@ rtmClient.on('message', async (event: { text: string; channel: string }) => {
         }
       } else { // text가 default
         try {
-          const scrapeMovieResult: string = await scrapeMovie();
+          const scrapeMovieResult = await scrapeMovie();
           if (!scrapeMovieResult) {
             logger.log(logTypes.ERROR_GET_MOVIE);
           }
