@@ -2,6 +2,8 @@ import http from 'http';
 import express from 'express';
 import fetch from 'node-fetch';
 import { Respond } from '@slack/interactive-messages';
+import logger from './modules/logger';
+import logTypes from './modules/logTypes';
 import rtmClient from './modules/rtmClient';
 import slackInteractions from './modules/slackInteractions';
 import scrapeMovie from './modules/scrapeMovie';
@@ -41,7 +43,7 @@ slackInteractions.action(CONSTANT.ACTION_ID, async (payload: ISelectPayload, res
     
         const getScreenshotResult: Buffer | null = await getScreenshot(CONSTANT.CATEGORY_URLS[categoryOptionIdx]);
         if (!getScreenshotResult) {
-          // TODO: error
+          logger.log(logTypes.ERROR_GET_SCREENSHOT);
         }
 
         await sendImage(getScreenshotResult);
@@ -64,7 +66,7 @@ slackInteractions.action(CONSTANT.ACTION_ID, async (payload: ISelectPayload, res
     
         const scrapeBookResult: string = await scrapeBook(CONSTANT.CATEGORY_URLS[categoryOptionIdx]);
         if (!scrapeBookResult) {
-          // TODO: error
+          logger.log(logTypes.ERROR_GET_BOOK);
         }
 
         await respond({
@@ -81,7 +83,7 @@ slackInteractions.action(CONSTANT.ACTION_ID, async (payload: ISelectPayload, res
       }
     }
   } catch (err) {
-    // TODO: error
+    logger.log({ level: 'error', message: JSON.stringify(err, null, 4) });
   }
 });
 
@@ -89,7 +91,7 @@ rtmClient.on('message', async (event: { text: string; channel: string }) => {
   try {
     const text: string = event.text || '';
     if ((!text.trim()) || text.includes(MESSAGE.ERROR_MESSAGE) || text.includes(MESSAGE.BOOK_MARKDOWN_INTERACTIVE_MESSAGE) || text.includes(MESSAGE.BOOK_PLAIN_INTERACTIVE_MESSAGE)) {
-      // TODO: error
+      logger.log(logTypes.ERROR_INVALID_PARAM);
     }
 
     // Bot에서 보낸 메시지도 event로 취급해서 무한루프 돌길래 if문으로 체크
@@ -109,7 +111,7 @@ rtmClient.on('message', async (event: { text: string; channel: string }) => {
         try {
           const getScreenshotResult: Buffer | null = await getScreenshot(MOVIE_URL);
           if (!getScreenshotResult) {
-            // TODO: error
+            logger.log(logTypes.ERROR_GET_SCREENSHOT);
           }
 
           await sendImage(getScreenshotResult);
@@ -120,7 +122,7 @@ rtmClient.on('message', async (event: { text: string; channel: string }) => {
         try {
           const scrapeMovieResult: string = await scrapeMovie();
           if (!scrapeMovieResult) {
-            // TODO: error
+            logger.log(logTypes.ERROR_GET_MOVIE);
           }
 
           await rtmClient.sendMessage(scrapeMovieResult, event.channel);
@@ -132,7 +134,7 @@ rtmClient.on('message', async (event: { text: string; channel: string }) => {
       // interactive message를 보내야 하기 때문에 value 변경 작업이 필요
       const copiedBookOptions = CONSTANT.BOOK_OPTIONS;
       const copiedNovelOptions = CONSTANT.NOVEL_OPTIONS;
-      if (CONSTANT.IMAGE_WORDS.includes(text.split('!책')[1].trim())) {
+      if (CONSTANT.IMAGE_WORDS.includes(text.split('!책' || '!도서')[1].trim())) {
         CONSTANT.BOOK_OPTIONS.forEach((elem, idx) => { copiedBookOptions[idx].value = `${elem.value}Img`; });
         CONSTANT.NOVEL_OPTIONS.forEach((elem, idx) => { copiedNovelOptions[idx].value = `${elem.value}Img`; });
       }
@@ -172,17 +174,16 @@ rtmClient.on('message', async (event: { text: string; channel: string }) => {
         headers: { 'Content-Type': 'application/json' },
       });
       if (!res.ok) {
-        // TODO: error
+        logger.log(logTypes.ERROR_WEBHOOK);
       }
 
-      // TODO: 처리
+      await rtmClient.sendMessage(`책 카테고리를 가져오는 동안 ${MESSAGE.ERROR_MESSAGE}!`, event.channel);
     }
     else {
-      // TODO: error
+      await rtmClient.sendMessage(MESSAGE.INSTRUCTION, event.channel);
     }
   } catch (err) {
-    console.log(err)
     await rtmClient.sendMessage(MESSAGE.ERROR_MESSAGE, event.channel);
-    // TODO: error
+    logger.log({ level: 'error', message: JSON.stringify(err, null, 4) });
   }
 });
