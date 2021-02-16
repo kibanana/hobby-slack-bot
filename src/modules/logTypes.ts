@@ -1,7 +1,7 @@
 export default {
-    ERROR_INVALID_PARAM: {
+    ERROR_BOT_MESSAGE: {
         level: 'error',
-        message: 'invalid param!'
+        message: 'bot message!'
     },
     ERROR_GET_SCREENSHOT: {
         level: 'error',

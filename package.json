@@ -33,9 +33,12 @@
     "form-data": "^3.0.0",
     "http": "0.0.0",
     "iconv-lite": "^0.6.2",
+    "morgan": "^1.10.0",
     "node-fetch": "^2.6.0",
     "puppeteer": "^2.0.0",
     "winston": "^3.3.3"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@types/morgan": "^1.9.2"
+  }
 }

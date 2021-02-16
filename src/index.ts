@@ -2,7 +2,8 @@ import http from 'http';
 import express from 'express';
 import fetch from 'node-fetch';
 import { Respond } from '@slack/interactive-messages';
-import logger from './modules/logger';
+import morgan from 'morgan';
+import { logger, stream } from './modules/logger';
 import logTypes from './modules/logTypes';
 import rtmClient from './modules/rtmClient';
 import slackInteractions from './modules/slackInteractions';
@@ -19,6 +20,8 @@ const { PORT, SLACK_WEBHOOK_URL } = process.env;
 
 const app = express();
 
+app.use(morgan('combined', { stream })); // 책 카테고리 
+
 app.get('*', (req: any, res: any) => {});
 
 app.post('/slack/actions', slackInteractions.expressMiddleware());
@@ -26,6 +29,8 @@ app.post('/slack/actions', slackInteractions.expressMiddleware());
 http.createServer(app).listen(PORT, () => {
   console.log(`server listening on port ${PORT}`);
 });
+
+let channel: string | null = null;
 
 slackInteractions.action(CONSTANT.ACTION_ID, async (payload: ISelectPayload, respond: Respond) => {
   try {
@@ -46,7 +51,7 @@ slackInteractions.action(CONSTANT.ACTION_ID, async (payload: ISelectPayload, res
           logger.log(logTypes.ERROR_GET_SCREENSHOT);
         }
 
-        await sendImage(getScreenshotResult);
+        await sendImage(channel, getScreenshotResult);
       } catch (err) {
         await respond({
           text: `책 스크린샷을 가져오는 동안 ${MESSAGE.ERROR_MESSAGE}`,
@@ -59,7 +64,7 @@ slackInteractions.action(CONSTANT.ACTION_ID, async (payload: ISelectPayload, res
       try {
         categoryOptionIdx = CONSTANT.CATEGORY_NAMES.indexOf(categoryOption.split('Img')[0].trim());
 
-        respond({
+        await respond({
           text: `*${CONSTANT.CATEGORYS[categoryOptionIdx].v}* 카테고리 선택`,
           response_type: 'in_channel'
         });
@@ -89,9 +94,10 @@ slackInteractions.action(CONSTANT.ACTION_ID, async (payload: ISelectPayload, res
 
 rtmClient.on('message', async (event: { text: string; channel: string }) => {
   try {
+    channel = event.channel;
     const text: string = event.text || '';
     if ((!text.trim()) || text.includes(MESSAGE.ERROR_MESSAGE) || text.includes(MESSAGE.BOOK_MARKDOWN_INTERACTIVE_MESSAGE) || text.includes(MESSAGE.BOOK_PLAIN_INTERACTIVE_MESSAGE)) {
-      logger.log(logTypes.ERROR_INVALID_PARAM);
+      logger.log(logTypes.ERROR_BOT_MESSAGE);
     }
 
     // Bot에서 보낸 메시지도 event로 취급해서 무한루프 돌길래 if문으로 체크
@@ -114,7 +120,7 @@ rtmClient.on('message', async (event: { text: string; channel: string }) => {
             logger.log(logTypes.ERROR_GET_SCREENSHOT);
           }
 
-          await sendImage(getScreenshotResult);
+          await sendImage(channel, getScreenshotResult);
         } catch (err) {
           rtmClient.sendMessage(`영화 스크린샷을 가져오는 동안 ${MESSAGE.ERROR_MESSAGE}!`, event.channel);
         }
@@ -174,12 +180,10 @@ rtmClient.on('message', async (event: { text: string; channel: string }) => {
         headers: { 'Content-Type': 'application/json' },
       });
       if (!res.ok) {
+        await rtmClient.sendMessage(`책 카테고리를 가져오는 동안 ${MESSAGE.ERROR_MESSAGE}!`, event.channel);
         logger.log(logTypes.ERROR_WEBHOOK);
       }
-
-      await rtmClient.sendMessage(`책 카테고리를 가져오는 동안 ${MESSAGE.ERROR_MESSAGE}!`, event.channel);
-    }
-    else {
+    } else if (text.includes('!h')) {
       await rtmClient.sendMessage(MESSAGE.INSTRUCTION, event.channel);
     }
   } catch (err) {

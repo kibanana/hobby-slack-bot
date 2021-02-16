@@ -1,11 +1,18 @@
 import { createLogger, format, transports } from 'winston';
 const { combine, timestamp, label, prettyPrint } = format;
 
-export default createLogger({
+const logger = createLogger({
     format: combine(
-        label(),
         timestamp(),
         prettyPrint()
     ),
     transports: [new transports.Console()]
 });
+
+const stream = {
+    write: (message: string) => {
+      logger.info(message);
+    }
+}
+
+export { logger, stream };
