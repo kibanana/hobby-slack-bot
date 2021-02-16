@@ -1,5 +1,6 @@
 import fetch, { Response } from 'node-fetch';
 import cheerio from 'cheerio';
+import iconv from 'iconv-lite';
 
 export default async (url: string): Promise<string> => {
   try {
@@ -8,7 +9,8 @@ export default async (url: string): Promise<string> => {
     let bookAuthor: string[] = [];
 
     const res: Response = await fetch(url);
-    const $: cheerio.Root = cheerio.load(await res.text());
+    
+    const $: cheerio.Root = cheerio.load(iconv.decode((await res.buffer()), 'EUC-KR').toString());
 
     $('div#category_layout ul li div.goods_info').each((i: number, elem: any) => {
       // always reult.length === 5
