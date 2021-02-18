@@ -1,33 +1,47 @@
-# hobby-slack-bot
-> 📚 🎬 Scrape and Send hobby(book, movie) information
+# Hobby Slack Bot
+
+> 📚 🎬 스크래핑한 취미(책, 영화) 정보를 슬랙에서 받자!
+
 
 ## Features
 
-- 도서 정보 (Text, Image 지원)  
-  Yes24의 카테고리 별 도서 정보를 가져옵니다
-- 영화 정보 (Text, Image 지원)  
-  네이버영화의 현재 상영영화 정보를 가져옵니다
+### 텍스트로 정보 받기
+
+Yes24의 카테고리별 도서 정보를 가져옵니다.
+
+### 이미지로 정보 받기
+
+네이버영화의 현재 상영영화 정보를 가져옵니다.
+
 
 ## How it works
-1. 유저가 '!영화' 또는 '!책'을 포함한 메시지를 보냅니다.
-2. 봇이 유저에게 정보를 보냅니다.
-    - 텍스트를 요청 받았을 때에는 정보를 스크래핑해서 보냅니다.
-    - 이미지를 요청 받았을 때에는 puppeteer로 얻어온 스크린샷을 Buffer 형태로 보냅니다.
+1. 책 정보를 받고싶으면 `!책`나 `!도서`, 영화 정보를 받고싶으면 `!영화` 메시지를 보냅니다.
+
+    스크린샷을 받고싶으면 `이미지`, `사진`, `스크린샷`, `img`, `image`, `picture`, `screenshot` 중 한 단어를 입력합니다. ex) `!책 이미지`, `!영화 이미지`
+
+2. Hobby Slack Bot이 요청 메시지를 보낸 유저에게 정보를 보냅니다.
+
+\* `!h`: 도움말
+
 
 ## Develop with
+
 ### Send message to Slack
-`@slack/rtm-api`  
-`@slack/interactive-messages`  
-`express`  
-`node-fetch`  
+- `@slack/interactive-messages`
+- `@slack/rtm-api`
+- `express`
+- `node-fetch`  
 
-### Scraping (Text)
-`cherrio-httpcli`  
+### Scrape Text
+- `cheerio`
+- `iconv-lite`
+- `node-fetch`
 
-### Screenshot (Image)
-`puppeteer`  
-`node-fetch`  
-`form-data`  
+### Get Screenshot(Image)
+- `puppeteer`
+- `form-data`
+- `node-fetch`
+
 
 ## Setup
 
@@ -35,11 +49,9 @@
 npm i
 ```
 
+
 ## Usage
 ```sh
-# After create config.ts or .env
-
 npm start
-# npm run start
-# ts-node ./src/index
+# node dist/index.js
 ```
