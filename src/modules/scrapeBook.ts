@@ -1,4 +1,4 @@
-import fetch, { Response } from 'node-fetch';
+import fetch from 'node-fetch';
 import cheerio from 'cheerio';
 import iconv from 'iconv-lite';
 import IBook from '../ts/IBook';
