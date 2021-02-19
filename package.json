@@ -4,10 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "preinstall": "npm i -g typescript",
+    "preinstall": "npm i -g typescript && npm i -g pm2",
     "build": "tsc",
     "prestart": "npm run build",
-    "start": "node dist/index.js"
+    "start": "pm2 start dist/index.js",
+    "stop": "pm2 kill"
   },
   "repository": {
     "type": "git",
@@ -23,7 +24,7 @@
     "@slack/interactive-messages": "^1.4.1",
     "@slack/rtm-api": "^5.0.3",
     "@types/cheerio": "^0.22.24",
-    "@types/node": "^14.14.27",
+    "@types/morgan": "^1.9.2",
     "@types/node-fetch": "^2.5.4",
     "@types/puppeteer": "^2.0.0",
     "aws-sdk": "^2.603.0",
@@ -38,7 +39,5 @@
     "puppeteer": "^2.0.0",
     "winston": "^3.3.3"
   },
-  "devDependencies": {
-    "@types/morgan": "^1.9.2"
-  }
+  "devDependencies": {}
 }
