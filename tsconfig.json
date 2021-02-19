@@ -5,14 +5,14 @@
 		"outDir": "dist",
 		"rootDir": "src",
 		"lib": [
-      "dom",
-      "es5",
-      "scripthost",
-      "es2015.promise"
+			"dom",
+			"es5",
+			"scripthost",
+			"es2015.promise"
 		],
 		"sourceMap": true,
-    "strict": true,
-    "esModuleInterop": true
-  },
+		"strict": true,
+		"esModuleInterop": true
+  	},
 	"exclude": ["node_modules"]
 }

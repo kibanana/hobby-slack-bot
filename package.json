@@ -1,13 +1,14 @@
 {
   "name": "hobby-slack-bot",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "📚 🎬 1. 취미(책, 영화) 정보 스크래핑 2. 슬랙에 전송",
+  "main": "dist/index.js",
   "scripts": {
-    "preinstall": "npm i -g typescript && npm i -g pm2",
+    "preinstall": "npm i -g typescript pm2",
     "build": "tsc",
     "prestart": "npm run build",
-    "start": "pm2 start dist/index.js",
+    "start:node": "node dist/index.js",
+    "start": "pm2 start npm -- start:node",
     "stop": "pm2 kill"
   },
   "repository": {
@@ -39,5 +40,8 @@
     "puppeteer": "^2.0.0",
     "winston": "^3.3.3"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@types/node": "^14.14.30",
+    "typescript": "^4.1.5"
+  }
 }
