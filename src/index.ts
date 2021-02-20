@@ -21,7 +21,7 @@ const app = express();
 
 app.use(morgan('combined', { stream })); // 책 카테고리 
 
-app.get('*', (req: any, res: any) => { res.send(); });
+app.get('*', (req, res) => { res.send('success!'); });
 
 app.post('/slack/actions', slackInteractions.expressMiddleware());
 

@@ -73,7 +73,7 @@ export default async (): Promise<string> => {
       if (movie.genre.length) {
         result += `✨ 장르`+ "\n" + `${movie.genre} \n`;
       }
-      result += `🤷‍♀감독🤷‍♂` + "\n" + `${movie.director} \n`;
+      result += `🤷‍♀ 감독 🤷‍♂` + "\n" + `${movie.director} \n`;
       if (movie.actors) {
         result += `🙆‍♂ 배우 🙆`+ "\n" + `${movie.actors} \n`;
       }
