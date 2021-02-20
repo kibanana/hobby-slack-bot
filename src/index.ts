@@ -47,7 +47,7 @@ slackInteractions.action(CONSTANT.ACTION_ID, async (payload: IPayload, respond: 
     
         const getScreenshotResult = await getScreenshot(CONSTANT.CATEGORY_URLS[categoryOptionIdx]);
         if (!getScreenshotResult) {
-          logger.log(logTypes.ERROR_GET_SCREENSHOT);
+          return logger.log(logTypes.ERROR_GET_SCREENSHOT);
         }
 
         await sendImage(channel, getScreenshotResult);
@@ -70,7 +70,7 @@ slackInteractions.action(CONSTANT.ACTION_ID, async (payload: IPayload, respond: 
     
         const scrapeBookResult = await scrapeBook(CONSTANT.CATEGORY_URLS[categoryOptionIdx]);
         if (!scrapeBookResult) {
-          logger.log(logTypes.ERROR_GET_BOOK);
+          return logger.log(logTypes.ERROR_GET_BOOK);
         }
 
         await respond({
@@ -87,7 +87,7 @@ slackInteractions.action(CONSTANT.ACTION_ID, async (payload: IPayload, respond: 
       }
     }
   } catch (err) {
-    logger.log({ level: 'error', message: JSON.stringify(err, null, 4) });
+    return logger.log({ level: 'error', message: JSON.stringify(err, null, 4) });
   }
 });
 
@@ -96,7 +96,7 @@ rtmClient.on('message', async (event: { text: string; channel: string }) => {
     channel = event.channel;
     const { text } = event;
     if ((!text.trim()) || text.includes(MESSAGE.ERROR_MESSAGE) || text.includes(MESSAGE.BOOK_MARKDOWN_INTERACTIVE_MESSAGE) || text.includes(MESSAGE.BOOK_PLAIN_INTERACTIVE_MESSAGE)) {
-      logger.log(logTypes.ERROR_BOT_MESSAGE);
+      return logger.log(logTypes.ERROR_BOT_MESSAGE);
     }
 
     // Bot에서 보낸 메시지도 event로 취급해서 무한루프 돌길래 if문으로 체크
@@ -116,7 +116,7 @@ rtmClient.on('message', async (event: { text: string; channel: string }) => {
         try {
           const getScreenshotResult = await getScreenshot(MOVIE_URL);
           if (!getScreenshotResult) {
-            logger.log(logTypes.ERROR_GET_SCREENSHOT);
+            return logger.log(logTypes.ERROR_GET_SCREENSHOT);
           }
 
           await sendImage(event.channel, getScreenshotResult);
@@ -127,7 +127,7 @@ rtmClient.on('message', async (event: { text: string; channel: string }) => {
         try {
           const scrapeMovieResult = await scrapeMovie();
           if (!scrapeMovieResult) {
-            logger.log(logTypes.ERROR_GET_MOVIE);
+            return logger.log(logTypes.ERROR_GET_MOVIE);
           }
 
           await rtmClient.sendMessage(scrapeMovieResult, event.channel);
@@ -188,13 +188,13 @@ rtmClient.on('message', async (event: { text: string; channel: string }) => {
       });
       if (!res.ok) {
         await rtmClient.sendMessage(`책 카테고리를 가져오는 동안 ${MESSAGE.ERROR_MESSAGE}!`, event.channel);
-        logger.log(logTypes.ERROR_WEBHOOK);
+        return logger.log(logTypes.ERROR_WEBHOOK);
       }
     } else if (text.includes('!h')) {
       await rtmClient.sendMessage(MESSAGE.INSTRUCTION, event.channel);
     }
   } catch (err) {
     await rtmClient.sendMessage(MESSAGE.ERROR_MESSAGE, event.channel);
-    logger.log({ level: 'error', message: JSON.stringify(err, null, 4) });
+    return logger.log({ level: 'error', message: JSON.stringify(err, null, 4) });
   }
 });
