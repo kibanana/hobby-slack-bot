@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "description": "📚 🎬 1. 취미(책, 영화) 정보 스크래핑 2. 슬랙에 전송",
   "main": "dist/index.js",
+  "engines": { "node": "12.18.2" },
   "scripts": {
-    "preinstall": "npm i -g typescript pm2",
+    "preinstall": "npm i -g typescript pm2 && npm run build",
     "build": "tsc",
-    "prestart": "npm run build",
     "start:node": "node dist/index.js",
     "start": "pm2 start npm -- start:node",
     "stop": "pm2 kill"
@@ -26,6 +26,7 @@
     "@slack/rtm-api": "^5.0.3",
     "@types/cheerio": "^0.22.24",
     "@types/morgan": "^1.9.2",
+    "@types/node": "^14.14.31",
     "@types/node-fetch": "^2.5.4",
     "@types/puppeteer": "^2.0.0",
     "aws-sdk": "^2.603.0",
@@ -38,10 +39,8 @@
     "morgan": "^1.10.0",
     "node-fetch": "^2.6.0",
     "puppeteer": "^2.0.0",
+    "typescript": "^4.1.5",
     "winston": "^3.3.3"
   },
-  "devDependencies": {
-    "@types/node": "^14.14.30",
-    "typescript": "^4.1.5"
-  }
+  "devDependencies": {}
 }
