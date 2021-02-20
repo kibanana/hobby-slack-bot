@@ -28,7 +28,6 @@
     "@slack/rtm-api": "^5.0.3",
     "@types/cheerio": "^0.22.24",
     "@types/morgan": "^1.9.2",
-    "@types/node": "^14.14.31",
     "@types/node-fetch": "^2.5.4",
     "@types/puppeteer": "^2.0.0",
     "aws-sdk": "^2.603.0",
@@ -42,7 +41,6 @@
     "node-fetch": "^2.6.0",
     "pm2": "^4.5.4",
     "puppeteer": "^2.0.0",
-    "typescript": "^4.1.5",
     "winston": "^3.3.3"
   },
   "devDependencies": {}

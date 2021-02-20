@@ -29,7 +29,7 @@ export default async (URL: string): Promise<Buffer | null> => {
     );
     
     const page = await browser.newPage();
-    page.setDefaultNavigationTimeout(100000); // 0으로 하면 아무 에러도 안나서 더 불편함
+    // page.setDefaultNavigationTimeout(100000); // 0으로 하면 아무 에러도 안나서 더 불편함
     await page.goto(URL, { waitUntil: 'networkidle2' });
     await page.setViewport({ width: 1280, height: viewportHeight });
   
