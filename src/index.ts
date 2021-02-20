@@ -6,7 +6,7 @@ import morgan from 'morgan';
 import { logger, stream } from './modules/logger';
 import logTypes from './modules/logTypes';
 import rtmClient from './modules/rtmClient';
-import slackInteractions from './modules/slackInteractions';
+import { createMessageAdapter } from '@slack/interactive-messages';
 import scrapeMovie from './modules/scrapeMovie';
 import scrapeBook from './modules/scrapeBook';
 import getScreenshot from './modules/getScreenshot';
@@ -17,14 +17,11 @@ import IPayload from './ts/IPayload';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
+const slackInteractions = createMessageAdapter(process.env.SIGNING_TOKEN || '');
 const app = express();
-
-app.use(morgan('combined', { stream })); // 책 카테고리 
-
+app.use(morgan('combined', { stream })); // 책 카테고리
 app.get('*', (req, res) => { res.send('success!'); });
-
-app.post('/slack/actions', slackInteractions.expressMiddleware());
-
+app.post('/slack/actions', slackInteractions.requestListener());
 http.createServer(app).listen(process.env.PORT || 3000, () => {
   console.log(`server listening on port ${process.env.PORT || 3000}`);
 });
@@ -87,7 +84,7 @@ slackInteractions.action(CONSTANT.ACTION_ID, async (payload: IPayload, respond: 
       }
     }
   } catch (err) {
-    return logger.log({ level: 'error', message: JSON.stringify(err, null, 4) });
+    logger.log({ level: 'error', message: 'slackInteractions error!' });
   }
 });
 
@@ -95,7 +92,7 @@ rtmClient.on('message', async (event: { text: string; channel: string }) => {
   try {
     channel = event.channel;
     const { text } = event;
-    if ((!text.trim()) || text.includes(MESSAGE.ERROR_MESSAGE) || text.includes(MESSAGE.BOOK_MARKDOWN_INTERACTIVE_MESSAGE) || text.includes(MESSAGE.BOOK_PLAIN_INTERACTIVE_MESSAGE)) {
+    if (!text || !text.trim() || text.includes(MESSAGE.ERROR_MESSAGE) || text.includes(MESSAGE.BOOK_MARKDOWN_INTERACTIVE_MESSAGE) || text.includes(MESSAGE.BOOK_PLAIN_INTERACTIVE_MESSAGE)) {
       return logger.log(logTypes.ERROR_BOT_MESSAGE);
     }
 
@@ -181,20 +178,25 @@ rtmClient.on('message', async (event: { text: string; channel: string }) => {
         ]
       };
 
-      const res = await fetch(process.env.SLACK_WEBHOOK_URL || '', {
-        method: 'POST',
-        body: JSON.stringify(categorySelectionRequestBody),
-        headers: { 'Content-Type': 'application/json' },
-      });
-      if (!res.ok) {
-        await rtmClient.sendMessage(`책 카테고리를 가져오는 동안 ${MESSAGE.ERROR_MESSAGE}!`, event.channel);
+      try {
+        const res = await fetch(process.env.SLACK_WEBHOOK_URL || '', {
+          method: 'POST',
+          body: JSON.stringify(categorySelectionRequestBody),
+          headers: { 'Content-Type': 'application/json' },
+        });
+        if (!res.ok) {
+          await rtmClient.sendMessage(`책 카테고리를 가져오는 동안 ${MESSAGE.ERROR_MESSAGE}!`, event.channel);
+          return logger.log(logTypes.ERROR_WEBHOOK);
+        }
+      } catch (err) {
         return logger.log(logTypes.ERROR_WEBHOOK);
       }
     } else if (text.includes('!h')) {
       await rtmClient.sendMessage(MESSAGE.INSTRUCTION, event.channel);
     }
   } catch (err) {
+    console.log(err);
     await rtmClient.sendMessage(MESSAGE.ERROR_MESSAGE, event.channel);
-    return logger.log({ level: 'error', message: JSON.stringify(err, null, 4) });
+    logger.log({ level: 'error', message: 'rtmClient error!' });
   }
 });

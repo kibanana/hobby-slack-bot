@@ -1,6 +1,6 @@
 export default {
     ERROR_BOT_MESSAGE: {
-        level: 'error',
+        level: 'info',
         message: 'bot message!'
     },
     ERROR_GET_SCREENSHOT: {
