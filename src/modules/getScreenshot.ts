@@ -20,17 +20,12 @@ export default async (URL: string): Promise<Buffer | null> => {
     }
   
     const browser = await puppeteer.launch(
-      // {
-      //   headless: true,
-      //   ignoreHTTPSErrors: true,
-      //   args: [
-      //     '--no-sandbox',
-      //     '--disable-setuid-sandbox',
-      //     '--disable-dev-shm-usage',
-      //     '--single-process',
-      //     '--enable-features=NetworkService'
-      //   ]
-      // }
+      {
+        'args' : [
+          '--no-sandbox',
+          '--disable-setuid-sandbox'
+        ]
+      }
     );
     
     const page = await browser.newPage();
