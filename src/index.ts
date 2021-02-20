@@ -21,7 +21,7 @@ const app = express();
 
 app.use(morgan('combined', { stream })); // 책 카테고리 
 
-app.get('*', (req: any, res: any) => {});
+app.get('*', (req: any, res: any) => { res.send(); });
 
 app.post('/slack/actions', slackInteractions.expressMiddleware());
 
@@ -93,6 +93,7 @@ slackInteractions.action(CONSTANT.ACTION_ID, async (payload: IPayload, respond: 
 
 rtmClient.on('message', async (event: { text: string; channel: string }) => {
   try {
+    channel = event.channel;
     const { text } = event;
     if ((!text.trim()) || text.includes(MESSAGE.ERROR_MESSAGE) || text.includes(MESSAGE.BOOK_MARKDOWN_INTERACTIVE_MESSAGE) || text.includes(MESSAGE.BOOK_PLAIN_INTERACTIVE_MESSAGE)) {
       logger.log(logTypes.ERROR_BOT_MESSAGE);
