@@ -16,7 +16,6 @@ import MESSAGE from './modules/messages';
 import IPayload from './ts/IPayload';
 import * as dotenv from 'dotenv';
 dotenv.config();
-const { PORT, SLACK_WEBHOOK_URL } = process.env;
 
 const app = express();
 
@@ -26,8 +25,8 @@ app.get('*', (req: any, res: any) => {});
 
 app.post('/slack/actions', slackInteractions.expressMiddleware());
 
-http.createServer(app).listen(PORT, () => {
-  console.log(`server listening on port ${PORT}`);
+http.createServer(app).listen(process.env.PORT || 3000, () => {
+  console.log(`server listening on port ${process.env.PORT || 3000}`);
 });
 
 let channel: string | null = null;
@@ -183,7 +182,7 @@ rtmClient.on('message', async (event: { text: string; channel: string }) => {
         ]
       };
 
-      const res = await fetch(SLACK_WEBHOOK_URL || '', {
+      const res = await fetch(process.env.SLACK_WEBHOOK_URL || '', {
         method: 'POST',
         body: JSON.stringify(categorySelectionRequestBody),
         headers: { 'Content-Type': 'application/json' },

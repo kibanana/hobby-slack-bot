@@ -1,6 +1,5 @@
 import FormData from 'form-data';
 import fetch from 'node-fetch';
-const { API_TOKEN } = process.env;
 
 export default async (channel: string | null, image: Buffer | null): Promise<boolean> => {
     try {
@@ -8,7 +7,7 @@ export default async (channel: string | null, image: Buffer | null): Promise<boo
 
         const form = new FormData();
         form.append('channels', channel);
-        form.append('token', API_TOKEN);
+        form.append('token', process.env.API_TOKEN);
         form.append('filename', `hobby-info-image-${currentDate}`);
         form.append('filetype', 'image/png');
         form.append('title', `hobby-info-image-${currentDate}.png`);

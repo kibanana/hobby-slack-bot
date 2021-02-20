@@ -1,11 +1,10 @@
 import puppeteer from 'puppeteer';
 import AWS from 'aws-sdk';
 import CONSTANT from './constants';
-const { AWS_REGION, AWS_IDENTITY } = process.env;
 
 const s3 = new AWS.S3();
-AWS.config.region = AWS_REGION;
-AWS.config.credentials = new AWS.CognitoIdentityCredentials({ IdentityPoolId: AWS_IDENTITY || ''});
+AWS.config.region = process.env.AWS_REGION;
+AWS.config.credentials = new AWS.CognitoIdentityCredentials({ IdentityPoolId: process.env.AWS_IDENTITY || ''});
 
 export default async (URL: string): Promise<Buffer | null> => {
   try {
