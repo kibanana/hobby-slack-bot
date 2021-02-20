@@ -3,12 +3,14 @@
   "version": "1.0.0",
   "description": "📚 🎬 1. 취미(책, 영화) 정보 스크래핑 2. 슬랙에 전송",
   "main": "dist/index.js",
-  "engines": { "node": "12.18.2" },
+  "engines": {
+    "node": "12.18.2"
+  },
   "scripts": {
-    "preinstall": "npm i -g typescript pm2 && npm run build",
+    "preinstall": "npm i -g typescript",
     "build": "tsc",
-    "start:node": "node dist/index.js",
-    "start": "pm2 start npm -- start:node",
+    "prestart": "npm run build",
+    "start": "pm2-runtime start ecosystem.config.js --env production",
     "stop": "pm2 kill"
   },
   "repository": {
@@ -38,6 +40,7 @@
     "iconv-lite": "^0.6.2",
     "morgan": "^1.10.0",
     "node-fetch": "^2.6.0",
+    "pm2": "^4.5.4",
     "puppeteer": "^2.0.0",
     "typescript": "^4.1.5",
     "winston": "^3.3.3"
