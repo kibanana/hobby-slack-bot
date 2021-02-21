@@ -1,4 +1,4 @@
-export default interface IMovie {
+export default interface Movie {
     title: string;
     rating?: string;
     ratingPerson?: string;

@@ -13,7 +13,7 @@ import getScreenshot from './modules/getScreenshot';
 import sendImage from './modules/sendImage';
 import CONSTANT from './modules/constants';
 import MESSAGE from './modules/messages';
-import IPayload from './ts/IPayload';
+import Payload from './ts/Payload';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
@@ -28,7 +28,7 @@ http.createServer(app).listen(process.env.PORT || 3000, () => {
 
 let channel: string | null = null;
 
-slackInteractions.action(CONSTANT.ACTION_ID, async (payload: IPayload, respond: Respond) => {
+slackInteractions.action(CONSTANT.ACTION_ID, async (payload: Payload, respond: Respond) => {
   try {
     const categoryOption = payload.actions[0].selected_options['0']['value'];
     let categoryOptionIdx: number = 0;

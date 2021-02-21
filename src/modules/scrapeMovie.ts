@@ -1,10 +1,10 @@
 import fetch from 'node-fetch';
 import cheerio from 'cheerio';
-import IMovie from '../ts/IMovie';
+import Movie from '../ts/Movie';
 
 export default async (): Promise<string> => {
   try {
-    const movies: IMovie[] = [];
+    const movies: Movie[] = [];
     let tempTitle: string = '';
     let tempGenres: string[] = [];
     let tempDirectors: string[] = [];
@@ -57,7 +57,7 @@ export default async (): Promise<string> => {
     }
   
     let result: string = '';
-    movies.forEach((movie: IMovie, idx: number) => {
+    movies.forEach((movie: Movie, idx: number) => {
       switch(idx + 1) {
         case 1: result += `1️⃣`; break;
         case 2: result += `2️⃣`; break;

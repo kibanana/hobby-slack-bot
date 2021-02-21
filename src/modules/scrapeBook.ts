@@ -1,11 +1,11 @@
 import fetch from 'node-fetch';
 import cheerio from 'cheerio';
 import iconv from 'iconv-lite';
-import IBook from '../ts/IBook';
+import Book from '../ts/Book';
 
 export default async (url: string): Promise<string> => {
   try {
-    const books: IBook[] = [];
+    const books: Book[] = [];
     let bookTitle: string;
     let bookAuthors: string[] = [];
 
@@ -41,7 +41,7 @@ export default async (url: string): Promise<string> => {
     }
     
     let result: string = '';
-    books.forEach((book: IBook, idx: number) => {
+    books.forEach((book: Book, idx: number) => {
       switch(idx + 1) {
         case 1: result += `1️⃣`; break;
         case 2: result += `2️⃣`; break;
