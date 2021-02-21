@@ -21,15 +21,19 @@ export default async (URL: string): Promise<Buffer | null> => {
   
     const browser = await puppeteer.launch(
       {
-        'args' : [
+        headless: true,
+        args: [
           '--no-sandbox',
-          '--disable-setuid-sandbox'
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--single-process'
         ]
       }
     );
     
     const page = await browser.newPage();
-    // page.setDefaultNavigationTimeout(100000); // 0으로 하면 아무 에러도 안나서 더 불편함
+    page.setDefaultNavigationTimeout(180000); // 0으로 하면 아무 에러도 안나서 더 불편함
+    page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36');
     await page.goto(URL, { waitUntil: 'networkidle2' });
     await page.setViewport({ width: 1280, height: viewportHeight });
   
