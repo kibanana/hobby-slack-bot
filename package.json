@@ -7,9 +7,8 @@
     "node": "12.18.2"
   },
   "scripts": {
-    "preinstall": "npm i -g typescript",
     "build": "tsc",
-    "prestart": "npm run build",
+    "prestart": "npm i -g typescript && npm run build",
     "start": "pm2-runtime start ecosystem.config.js --env production --node-args='--max-old-space-size=8192 --stack-size=1968'",
     "stop": "pm2 kill"
   },
