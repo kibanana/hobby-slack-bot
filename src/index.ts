@@ -26,7 +26,7 @@ app.get('/', (req, res) => {
 app.post('/slack/actions', slackInteractions.requestListener());
 const port = process.env.PORT || 3000;
 http.createServer(app).listen(port, () => {
-  console.log(`server listening on port ${process.env.PORT || 3000}`);
+  console.log(`server listening on port ${port}`);
 });
 
 let channel: string | null = null;
