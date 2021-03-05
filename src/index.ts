@@ -20,9 +20,12 @@ dotenv.config();
 const slackInteractions = createMessageAdapter(process.env.SIGNING_TOKEN || '');
 const app = express();
 app.use(morgan('combined', { stream })); // 책 카테고리
-app.get('/', (req, res) => { res.send('success!'); });
+app.get('/', (req, res) => {
+  res.end();
+});
 app.post('/slack/actions', slackInteractions.requestListener());
-http.createServer(app).listen(process.env.PORT || 3000, () => {
+const port = process.env.PORT || 3000;
+http.createServer(app).listen(port, () => {
   console.log(`server listening on port ${process.env.PORT || 3000}`);
 });
 
