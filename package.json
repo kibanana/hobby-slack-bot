@@ -4,9 +4,9 @@
   "description": "📚 🎬 1. 취미(책, 영화) 정보 스크래핑 2. 슬랙에 전송",
   "main": "dist/index.js",
   "scripts": {
-    "preinstall": "npm i -g typescript",
     "build": "tsc",
-    "start": "npm run build && pm2-runtime start ecosystem.config.js --env production --node-args='--max-old-space-size=8192 --stack-size=1968'",
+    "prestart": "npm i -g typescript && npm run build",
+    "start": "pm2-runtime start ecosystem.config.js --env production --node-args='--max-old-space-size=8192 --stack-size=1968'",
     "stop": "pm2 kill"
   },
   "repository": {
