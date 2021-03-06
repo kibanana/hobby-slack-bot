@@ -24,8 +24,7 @@ app.use(morgan('combined', { stream })); // 책 카테고리
 app.get('/', (req, res) => {
   res.end();
 });
-app.post('/slack/actions', slackInteractions.requestListener());
-app.use(bodyParser());
+app.post('/slack/actions', slackInteractions.expressMiddleware());
 const port = process.env.PORT || 3000;
 http.createServer(app).listen(port, () => {
   console.log(`server listening on port ${port}`);
