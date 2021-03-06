@@ -10,7 +10,8 @@
     "preinstall": "npm i -g typescript",
     "postinstall": "npm run build",
     "build": "tsc",
-    "start": "node ./dist/index.js"
+    "start": "pm2-runtime start ecosystem.config.js --env production --node-args='--max-old-space-size=8192 --stack-size=1968'",
+    "stop": "pm2 kill"
   },
   "repository": {
     "type": "git",
@@ -38,6 +39,7 @@
     "iconv-lite": "^0.6.2",
     "morgan": "^1.10.0",
     "node-fetch": "^2.6.0",
+    "pm2": "^4.5.4",
     "puppeteer": "^2.0.0",
     "winston": "^3.3.3"
   },
