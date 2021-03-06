@@ -1,13 +1,11 @@
 import http from 'http';
 import express from 'express';
-import bodyParser from 'body-parser';
 import fetch from 'node-fetch';
-import { Respond } from '@slack/interactive-messages';
 import morgan from 'morgan';
 import { logger, stream } from './modules/logger';
 import logTypes from './modules/logTypes';
 import rtmClient from './modules/rtmClient';
-import { createMessageAdapter } from '@slack/interactive-messages';
+import { Respond, createMessageAdapter } from '@slack/interactive-messages';
 import scrapeMovie from './modules/scrapeMovie';
 import scrapeBook from './modules/scrapeBook';
 import getScreenshot from './modules/getScreenshot';
@@ -21,10 +19,11 @@ dotenv.config();
 const slackInteractions = createMessageAdapter(process.env.SIGNING_TOKEN || '');
 const app = express();
 app.use(morgan('combined', { stream })); // 책 카테고리
+app.use('/slack/actions', slackInteractions.requestListener());
+app.use(express.json());
 app.get('/', (req, res) => {
   res.end();
 });
-app.post('/slack/actions', slackInteractions.expressMiddleware());
 const port = process.env.PORT || 3000;
 http.createServer(app).listen(port, () => {
   console.log(`server listening on port ${port}`);

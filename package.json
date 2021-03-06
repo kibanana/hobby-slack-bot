@@ -5,9 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "preinstall": "npm i -g typescript",
-    "postinstall": "npm run build",
     "build": "tsc",
-    "start": "pm2-runtime start ecosystem.config.js --env production --node-args='--max-old-space-size=8192 --stack-size=1968'",
+    "start": "npm run build && pm2-runtime start ecosystem.config.js --env production --node-args='--max-old-space-size=8192 --stack-size=1968'",
     "stop": "pm2 kill"
   },
   "repository": {
