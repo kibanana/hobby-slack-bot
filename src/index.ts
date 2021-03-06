@@ -24,6 +24,7 @@ app.get('/', (req, res) => {
   res.end();
 });
 app.post('/slack/actions', slackInteractions.requestListener());
+app.use(express.json());
 const port = process.env.PORT || 3000;
 http.createServer(app).listen(port, () => {
   console.log(`server listening on port ${port}`);
