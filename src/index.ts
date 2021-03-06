@@ -1,5 +1,6 @@
 import http from 'http';
 import express from 'express';
+import bodyParser from 'body-parser';
 import fetch from 'node-fetch';
 import { Respond } from '@slack/interactive-messages';
 import morgan from 'morgan';
@@ -24,7 +25,7 @@ app.get('/', (req, res) => {
   res.end();
 });
 app.post('/slack/actions', slackInteractions.requestListener());
-app.use(express.json());
+app.use(bodyParser());
 const port = process.env.PORT || 3000;
 http.createServer(app).listen(port, () => {
   console.log(`server listening on port ${port}`);
